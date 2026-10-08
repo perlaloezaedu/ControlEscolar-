@@ -32,10 +32,10 @@ La conexión se centraliza en `Conexion.java`. Las consultas SQL se encuentran e
 
 
 # Integrantes:
-# Felipe del Ángel Jesica Mabel
-# García Martínez Ana Lilia 
-# Meza Loeza Perla Itzel
-# Moctezuma Viveros Dalia Lizeth
+Felipe del Ángel Jesica Mabel
+García Martínez Ana Lilia 
+Meza Loeza Perla Itzel
+Moctezuma Viveros Dalia Lizeth
 
 
 
