@@ -24,11 +24,11 @@ Se implementa `UsuarioDAO`, que define las operaciones de inserción y consulta.
 La conexión se centraliza en `Conexion.java`. Las consultas SQL se encuentran en la capa DAO.
 
 # 7. Validaciones
-· Correo obligatorio.
-·	Correo con formato básico válido.
-·	Rol obligatorio.
-·	Estado ACTIVO por defecto.
-·	La base de datos conserva la restricción UNIQUE para `usuarios.correo` definida en Sprint 2.
+* Correo obligatorio.
+*	Correo con formato básico válido.
+*	Rol obligatorio.
+*	Estado ACTIVO por defecto.
+*	La base de datos conserva la restricción UNIQUE para `usuarios.correo` definida en Sprint 2.
 
 
 # Integrantes:
