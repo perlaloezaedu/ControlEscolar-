@@ -31,7 +31,11 @@ La conexión se centraliza en `Conexion.java`. Las consultas SQL se encuentran e
 ·	La base de datos conserva la restricción UNIQUE para `usuarios.correo` definida en Sprint 2.
 
 
-##Integrantes:
+# Integrantes:
+Felipe del Ángel Jesica Mabel
+García Martínez Ana Lilia 
+Meza Loeza Perla Itzel
+Moctezuma Viveros Dalia Lizeth
 
 
 
