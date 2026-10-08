@@ -1,6 +1,6 @@
 #ControlEscolar
-#Incremento 1 — EduControl
-1. Objetivo
+# Incremento 1 — EduControl
+# 1. Objetivo
 Implementar la estructura inicial de clases, interfaces y la primera funcionalidad prioritaria, conectando la aplicación con la persistencia MySQL.
 
 2. Arquitectura implementada
