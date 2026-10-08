@@ -1,1 +1,182 @@
+package com.educontrol.vista;
+
+import com.educontrol.dao.AlumnoDAO;
+import java.awt.EventQueue;
+import java.awt.Font;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.awt.event.ActionEvent;
+
+public class AlumnoFrame extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	private JPanel contentPane;
+	private JTextField txtNombre;
+	private JTextField txtApellidos;
+	private JTextField txtTel;
+	private JTextField txtCorreo;
+	private JTextField txtDir;
+	private JTextField txtFecha;
+	private JTable tabla;
+	private DefaultTableModel modelo;
+	private AlumnoDAO dao = new AlumnoDAO();
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					AlumnoFrame frame = new AlumnoFrame();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public AlumnoFrame() {
+		setTitle("EduControl - Gestion Alumnos HU05");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 900, 520);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		setLocationRelativeTo(null);
+
+		JPanel panelForm = new JPanel();
+		panelForm.setBounds(10, 10, 350, 460);
+		panelForm.setBorder(BorderFactory.createTitledBorder("Registrar Alumno"));
+		contentPane.add(panelForm);
+		panelForm.setLayout(null);
+
+		JLabel lblNombre = new JLabel("Nombre:");
+		lblNombre.setBounds(10, 25, 80, 14);
+		panelForm.add(lblNombre);
+
+		txtNombre = new JTextField();
+		txtNombre.setBounds(110, 22, 220, 20);
+		panelForm.add(txtNombre);
+		txtNombre.setColumns(10);
+
+		JLabel lblApellidos = new JLabel("Apellidos:");
+		lblApellidos.setBounds(10, 60, 80, 14);
+		panelForm.add(lblApellidos);
+
+		txtApellidos = new JTextField();
+		txtApellidos.setBounds(110, 57, 220, 20);
+		panelForm.add(txtApellidos);
+		txtApellidos.setColumns(10);
+
+		JLabel lblTelefono = new JLabel("Telefono:");
+		lblTelefono.setBounds(10, 95, 80, 14);
+		panelForm.add(lblTelefono);
+
+		txtTel = new JTextField();
+		txtTel.setBounds(110, 92, 220, 20);
+		panelForm.add(txtTel);
+		txtTel.setColumns(10);
+
+		JLabel lblCorreo = new JLabel("Correo:");
+		lblCorreo.setBounds(10, 130, 80, 14);
+		panelForm.add(lblCorreo);
+
+		txtCorreo = new JTextField();
+		txtCorreo.setBounds(110, 127, 220, 20);
+		panelForm.add(txtCorreo);
+		txtCorreo.setColumns(10);
+
+		JLabel lblDireccion = new JLabel("Direccion:");
+		lblDireccion.setBounds(10, 165, 80, 14);
+		panelForm.add(lblDireccion);
+
+		txtDir = new JTextField();
+		txtDir.setBounds(110, 162, 220, 20);
+		panelForm.add(txtDir);
+		txtDir.setColumns(10);
+
+		JLabel lblFecha = new JLabel("Fecha Nacimiento:");
+		lblFecha.setBounds(10, 200, 90, 14);
+		panelForm.add(lblFecha);
+
+		txtFecha = new JTextField();
+		txtFecha.setBounds(110, 197, 220, 20);
+		panelForm.add(txtFecha);
+		txtFecha.setColumns(10);
+
+		JLabel lblHint = new JLabel("YYYY-MM-DD");
+		lblHint.setFont(new Font("Tahoma", Font.ITALIC, 10));
+		lblHint.setBounds(110, 217, 100, 14);
+		panelForm.add(lblHint);
+
+		JButton btnReg = new JButton("Registrar");
+		btnReg.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				registrar();
+			}
+		});
+		btnReg.setBounds(10, 250, 150, 35);
+		panelForm.add(btnReg);
+
+		JButton btnCons = new JButton("Consultar");
+		btnCons.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cargar();
+			}
+		});
+		btnCons.setBounds(180, 250, 150, 35);
+		panelForm.add(btnCons);
+
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(380, 10, 495, 460);
+		contentPane.add(scrollPane);
+
+		modelo = new DefaultTableModel(new Object[] { "ID", "Nombre", "Apellidos", "Correo", "Tel" }, 0);
+		tabla = new JTable();
+		tabla.setModel(modelo);
+		scrollPane.setViewportView(tabla);
+
+		cargar();
+	}
+
+	private void registrar() {
+		if (txtNombre.getText().isEmpty() || txtCorreo.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Nombre y correo obligatorios");
+			return;
+		}
+		if (!txtCorreo.getText().contains("@")) {
+			JOptionPane.showMessageDialog(this, "Correo invalido CA5.3");
+			return;
+		}
+		try {
+			LocalDate fecha = txtFecha.getText().isEmpty() ? null : LocalDate.parse(txtFecha.getText());
+			com.educontrol.model.Alumno a = new com.educontrol.model.Alumno(txtNombre.getText(),
+					txtApellidos.getText(), txtTel.getText(), txtCorreo.getText(), txtDir.getText(), fecha);
+			if (dao.registrar(a)) {
+				JOptionPane.showMessageDialog(this, "Registrado!");
+				cargar();
+			} else
+				JOptionPane.showMessageDialog(this, "Error, correo duplicado?");
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(this, "Fecha debe ser YYYY-MM-DD");
+		}
+	}
+
+	private void cargar() {
+		modelo.setRowCount(0);
+		for (com.educontrol.model.Alumno a : dao.consultarTodos()) {
+			modelo.addRow(new Object[] { a.getIdAlumno(), a.getNombre(), a.getApellidos(), a.getCorreo(),
+					a.getTelefono() });
+		}
+	}
+}
 
