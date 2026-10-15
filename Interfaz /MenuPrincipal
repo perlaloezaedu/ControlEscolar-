@@ -1,182 +1,113 @@
-package com.educontrol.vista;
+package poo.interfaz;
 
-import com.educontrol.dao.AlumnoDAO;
 import java.awt.EventQueue;
+import java.awt.Color;
 import java.awt.Font;
-import javax.swing.*;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionListener;
-import java.time.LocalDate;
-import java.awt.event.ActionEvent;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
-public class AlumnoFrame extends JFrame {
+public class MenuPrincipal extends JFrame {
 
-	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
-	private JTextField txtNombre;
-	private JTextField txtApellidos;
-	private JTextField txtTel;
-	private JTextField txtCorreo;
-	private JTextField txtDir;
-	private JTextField txtFecha;
-	private JTable tabla;
-	private DefaultTableModel modelo;
-	private AlumnoDAO dao = new AlumnoDAO();
+    private static final long serialVersionUID = 1L;
+    private JPanel contentPane;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					AlumnoFrame frame = new AlumnoFrame();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    public static void main(String[] args) {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    MenuPrincipal frame = new MenuPrincipal();
+                    frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
-	/**
-	 * Create the frame.
-	 */
-	public AlumnoFrame() {
-		setTitle("EduControl - Gestion Alumnos HU05");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 900, 520);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		setLocationRelativeTo(null);
+    public MenuPrincipal() {
+        setTitle("Menú Principal");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 850, 500);
+        setLocationRelativeTo(null);
 
-		JPanel panelForm = new JPanel();
-		panelForm.setBounds(10, 10, 350, 460);
-		panelForm.setBorder(BorderFactory.createTitledBorder("Registrar Alumno"));
-		contentPane.add(panelForm);
-		panelForm.setLayout(null);
+        contentPane = new JPanel();
+        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        setContentPane(contentPane);
+        contentPane.setLayout(null);
 
-		JLabel lblNombre = new JLabel("Nombre:");
-		lblNombre.setBounds(10, 25, 80, 14);
-		panelForm.add(lblNombre);
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.setBackground(new Color(0, 128, 255));
+        menuBar.setBounds(10, 10, 810, 30);
+        contentPane.add(menuBar);
 
-		txtNombre = new JTextField();
-		txtNombre.setBounds(110, 22, 220, 20);
-		panelForm.add(txtNombre);
-		txtNombre.setColumns(10);
+        JMenu mnInicio = new JMenu("Inicio");
+        menuBar.add(mnInicio);
 
-		JLabel lblApellidos = new JLabel("Apellidos:");
-		lblApellidos.setBounds(10, 60, 80, 14);
-		panelForm.add(lblApellidos);
+        JMenuItem itemInicio = new JMenuItem("Página principal");
+        mnInicio.add(itemInicio);
 
-		txtApellidos = new JTextField();
-		txtApellidos.setBounds(110, 57, 220, 20);
-		panelForm.add(txtApellidos);
-		txtApellidos.setColumns(10);
+        JMenu mnCursos = new JMenu("Cursos");
+        menuBar.add(mnCursos);
+        agregarOpciones(mnCursos);
 
-		JLabel lblTelefono = new JLabel("Telefono:");
-		lblTelefono.setBounds(10, 95, 80, 14);
-		panelForm.add(lblTelefono);
+        JMenu mnContenido = new JMenu("Contenido de cursos");
+        menuBar.add(mnContenido);
+        agregarOpciones(mnContenido);
 
-		txtTel = new JTextField();
-		txtTel.setBounds(110, 92, 220, 20);
-		panelForm.add(txtTel);
-		txtTel.setColumns(10);
+        JMenu mnAlumnos = new JMenu("Alumnos");
+        menuBar.add(mnAlumnos);
+        agregarOpciones(mnAlumnos);
 
-		JLabel lblCorreo = new JLabel("Correo:");
-		lblCorreo.setBounds(10, 130, 80, 14);
-		panelForm.add(lblCorreo);
+        JMenu mnInscripciones = new JMenu("Inscripciones");
+        menuBar.add(mnInscripciones);
+        agregarOpciones(mnInscripciones);
 
-		txtCorreo = new JTextField();
-		txtCorreo.setBounds(110, 127, 220, 20);
-		panelForm.add(txtCorreo);
-		txtCorreo.setColumns(10);
+        JMenu mnPagos = new JMenu("Pagos");
+        menuBar.add(mnPagos);
+        agregarOpciones(mnPagos);
 
-		JLabel lblDireccion = new JLabel("Direccion:");
-		lblDireccion.setBounds(10, 165, 80, 14);
-		panelForm.add(lblDireccion);
+        JMenu mnCalificaciones = new JMenu("Calificaciones");
+        menuBar.add(mnCalificaciones);
+        agregarOpciones(mnCalificaciones);
 
-		txtDir = new JTextField();
-		txtDir.setBounds(110, 162, 220, 20);
-		panelForm.add(txtDir);
-		txtDir.setColumns(10);
+        JMenu mnSesion = new JMenu("Sesión");
+        menuBar.add(mnSesion);
 
-		JLabel lblFecha = new JLabel("Fecha Nacimiento:");
-		lblFecha.setBounds(10, 200, 90, 14);
-		panelForm.add(lblFecha);
+        JMenuItem itemCerrarSesion = new JMenuItem("Cerrar sesión");
+        mnSesion.add(itemCerrarSesion);
 
-		txtFecha = new JTextField();
-		txtFecha.setBounds(110, 197, 220, 20);
-		panelForm.add(txtFecha);
-		txtFecha.setColumns(10);
+        JLabel lblTitulo = new JLabel("BIENVENIDO A EDUCONTROL");
+        lblTitulo.setForeground(new Color(0, 0, 160));
+        lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
+        lblTitulo.setFont(new Font("Arial", Font.BOLD, 26));
+        lblTitulo.setBounds(100, 120, 650, 50);
+        contentPane.add(lblTitulo);
 
-		JLabel lblHint = new JLabel("YYYY-MM-DD");
-		lblHint.setFont(new Font("Tahoma", Font.ITALIC, 10));
-		lblHint.setBounds(110, 217, 100, 14);
-		panelForm.add(lblHint);
+        JLabel lblDescripcion = new JLabel(
+                "Sistema de gestión educativa");
+        lblDescripcion.setForeground(new Color(0, 0, 160));
+        lblDescripcion.setHorizontalAlignment(SwingConstants.CENTER);
+        lblDescripcion.setFont(new Font("Arial", Font.PLAIN, 18));
+        lblDescripcion.setBounds(100, 180, 650, 35);
+        contentPane.add(lblDescripcion);
+    }
 
-		JButton btnReg = new JButton("Registrar");
-		btnReg.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				registrar();
-			}
-		});
-		btnReg.setBounds(10, 250, 150, 35);
-		panelForm.add(btnReg);
+    private void agregarOpciones(JMenu menu) {
+        JMenuItem registrar = new JMenuItem("Registrar");
+        JMenuItem consultar = new JMenuItem("Consultar");
+        JMenuItem modificar = new JMenuItem("Modificar");
+        JMenuItem eliminar = new JMenuItem("Eliminar");
 
-		JButton btnCons = new JButton("Consultar");
-		btnCons.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				cargar();
-			}
-		});
-		btnCons.setBounds(180, 250, 150, 35);
-		panelForm.add(btnCons);
-
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(380, 10, 495, 460);
-		contentPane.add(scrollPane);
-
-		modelo = new DefaultTableModel(new Object[] { "ID", "Nombre", "Apellidos", "Correo", "Tel" }, 0);
-		tabla = new JTable();
-		tabla.setModel(modelo);
-		scrollPane.setViewportView(tabla);
-
-		cargar();
-	}
-
-	private void registrar() {
-		if (txtNombre.getText().isEmpty() || txtCorreo.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(this, "Nombre y correo obligatorios");
-			return;
-		}
-		if (!txtCorreo.getText().contains("@")) {
-			JOptionPane.showMessageDialog(this, "Correo invalido CA5.3");
-			return;
-		}
-		try {
-			LocalDate fecha = txtFecha.getText().isEmpty() ? null : LocalDate.parse(txtFecha.getText());
-			com.educontrol.model.Alumno a = new com.educontrol.model.Alumno(txtNombre.getText(),
-					txtApellidos.getText(), txtTel.getText(), txtCorreo.getText(), txtDir.getText(), fecha);
-			if (dao.registrar(a)) {
-				JOptionPane.showMessageDialog(this, "Registrado!");
-				cargar();
-			} else
-				JOptionPane.showMessageDialog(this, "Error, correo duplicado?");
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this, "Fecha debe ser YYYY-MM-DD");
-		}
-	}
-
-	private void cargar() {
-		modelo.setRowCount(0);
-		for (com.educontrol.model.Alumno a : dao.consultarTodos()) {
-			modelo.addRow(new Object[] { a.getIdAlumno(), a.getNombre(), a.getApellidos(), a.getCorreo(),
-					a.getTelefono() });
-		}
-	}
+        menu.add(registrar);
+        menu.add(consultar);
+        menu.add(modificar);
+        menu.add(eliminar);
+    }
 }
-
