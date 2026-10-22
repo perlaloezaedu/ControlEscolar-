@@ -1,0 +1,45 @@
+package poo.servicio;
+
+import poo.dao.InscripcionDAO;
+import poo.modelo.Inscripcion;
+import java.sql.SQLException;
+import java.util.List;
+
+public class InscripcionServicio {
+    private final InscripcionDAO dao = new InscripcionDAO();
+
+    public boolean registrar(Inscripcion x) throws SQLException {
+        validar(x);
+        return dao.registrar(x);
+    }
+
+    public List<Inscripcion> listar() throws SQLException {
+        return dao.listar();
+    }
+
+    public Inscripcion buscarPorId(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.buscarPorId(id);
+    }
+
+    public boolean modificar(Inscripcion x) throws SQLException {
+        if (x.getIdInscripcion() <= 0) throw new IllegalArgumentException("ID inválido.");
+        validar(x);
+        return dao.modificar(x);
+    }
+
+    public boolean eliminar(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.eliminar(id);
+    }
+
+    private void validar(Inscripcion x) {
+        if (x == null || x.getIdAlumno() <= 0 || x.getIdCurso() <= 0
+                || x.getFechaInscripcion() == null
+                || x.getEstado() == null || x.getEstado().trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Completa alumno, curso, fecha y estado.");
+        }
+    }
+}
+
