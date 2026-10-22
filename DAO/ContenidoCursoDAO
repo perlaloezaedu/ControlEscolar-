@@ -1,0 +1,75 @@
+package poo.dao;
+
+import poo.conexion.Conexion;
+import poo.modelo.ContenidoCurso;
+import java.sql.*;
+import java.util.*;
+
+public class ContenidoCursoDAO {
+
+    public boolean registrar(ContenidoCurso x) throws SQLException {
+        String sql = "INSERT INTO contenido_curso (id_curso, titulo, descripcion, tipo, orden) VALUES (?, ?, ?, ?, ?)";
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+            p.setInt(1, x.getIdCurso());
+            p.setString(2, x.getTitulo());
+            p.setString(3, x.getDescripcion());
+            p.setString(4, x.getTipo());
+            p.setInt(5, x.getOrden());
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    public List<ContenidoCurso> listar() throws SQLException {
+        List<ContenidoCurso> lista = new ArrayList<>();
+        String sql = "SELECT * FROM contenido_curso ORDER BY id_curso, orden";
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql);
+             ResultSet r = p.executeQuery()) {
+            while (r.next()) {
+                lista.add(new ContenidoCurso(
+                    r.getInt("id_contenido"), r.getInt("id_curso"),
+                    r.getString("titulo"), r.getString("descripcion"),
+                    r.getString("tipo"), r.getInt("orden")));
+            }
+        }
+        return lista;
+    }
+
+    public ContenidoCurso buscarPorId(int id) throws SQLException {
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement("SELECT * FROM contenido_curso WHERE id_contenido=?")) {
+            p.setInt(1, id);
+            try (ResultSet r = p.executeQuery()) {
+                if (!r.next()) return null;
+                return new ContenidoCurso(r.getInt("id_contenido"),
+                    r.getInt("id_curso"), r.getString("titulo"),
+                    r.getString("descripcion"), r.getString("tipo"),
+                    r.getInt("orden"));
+            }
+        }
+    }
+
+    public boolean modificar(ContenidoCurso x) throws SQLException {
+        String sql = "UPDATE contenido_curso SET id_curso=?, titulo=?, descripcion=?, tipo=?, orden=? WHERE id_contenido=?";
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+            p.setInt(1, x.getIdCurso());
+            p.setString(2, x.getTitulo());
+            p.setString(3, x.getDescripcion());
+            p.setString(4, x.getTipo());
+            p.setInt(5, x.getOrden());
+            p.setInt(6, x.getIdContenido());
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    public boolean eliminar(int id) throws SQLException {
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement("DELETE FROM contenido_curso WHERE id_contenido=?")) {
+            p.setInt(1, id);
+            return p.executeUpdate() > 0;
+        }
+    }
+}
+
