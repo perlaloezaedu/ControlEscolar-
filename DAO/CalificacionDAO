@@ -1,1 +1,130 @@
+package poo.dao;
+
+import poo.conexion.Conexion;
+import poo.modelo.Calificacion;
+
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CalificacionDAO {
+
+    public boolean registrar(Calificacion x) throws SQLException {
+        validarNota(x.getCalificacion());
+
+        String sql = "INSERT INTO calificaciones "
+                + "(id_inscripcion, tipo_evaluacion, calificacion, "
+                + "fecha_evaluacion, observaciones) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, x.getIdInscripcion());
+            p.setString(2, x.getTipoEvaluacion());
+            p.setBigDecimal(3, x.getCalificacion());
+            p.setDate(4, java.sql.Date.valueOf(x.getFechaEvaluacion()));
+            p.setString(5, x.getObservaciones());
+
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    public List<Calificacion> listar() throws SQLException {
+        List<Calificacion> lista = new ArrayList<>();
+        String sql = "SELECT * FROM calificaciones ORDER BY id_calificacion";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql);
+             ResultSet r = p.executeQuery()) {
+
+            while (r.next()) {
+                java.sql.Date fecha = r.getDate("fecha_evaluacion");
+
+                lista.add(new Calificacion(
+                    r.getInt("id_calificacion"),
+                    r.getInt("id_inscripcion"),
+                    r.getString("tipo_evaluacion"),
+                    r.getBigDecimal("calificacion"),
+                    fecha == null ? null : fecha.toLocalDate(),
+                    r.getString("observaciones")
+                ));
+            }
+        }
+
+        return lista;
+    }
+
+    public Calificacion buscarPorId(int id) throws SQLException {
+        String sql = "SELECT * FROM calificaciones WHERE id_calificacion = ?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, id);
+
+            try (ResultSet r = p.executeQuery()) {
+                if (!r.next()) {
+                    return null;
+                }
+
+                java.sql.Date fecha = r.getDate("fecha_evaluacion");
+
+                return new Calificacion(
+                    r.getInt("id_calificacion"),
+                    r.getInt("id_inscripcion"),
+                    r.getString("tipo_evaluacion"),
+                    r.getBigDecimal("calificacion"),
+                    fecha == null ? null : fecha.toLocalDate(),
+                    r.getString("observaciones")
+                );
+            }
+        }
+    }
+
+    public boolean modificar(Calificacion x) throws SQLException {
+        validarNota(x.getCalificacion());
+
+        String sql = "UPDATE calificaciones SET id_inscripcion=?, "
+                + "tipo_evaluacion=?, calificacion=?, fecha_evaluacion=?, "
+                + "observaciones=? WHERE id_calificacion=?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, x.getIdInscripcion());
+            p.setString(2, x.getTipoEvaluacion());
+            p.setBigDecimal(3, x.getCalificacion());
+            p.setDate(4, java.sql.Date.valueOf(x.getFechaEvaluacion()));
+            p.setString(5, x.getObservaciones());
+            p.setInt(6, x.getIdCalificacion());
+
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    public boolean eliminar(int id) throws SQLException {
+        String sql = "DELETE FROM calificaciones WHERE id_calificacion = ?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, id);
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    private void validarNota(BigDecimal nota) {
+        if (nota == null
+                || nota.compareTo(BigDecimal.ZERO) < 0
+                || nota.compareTo(BigDecimal.TEN) > 0) {
+            throw new IllegalArgumentException(
+                "La calificación debe estar entre 0 y 10.");
+        }
+    }
+}
+
 
