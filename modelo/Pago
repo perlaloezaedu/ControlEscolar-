@@ -1,0 +1,75 @@
+package poo.modelo;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+public class Pago {
+
+    private int idPago;
+    private int idInscripcion;
+    private BigDecimal monto;
+    private LocalDate fechaPago;
+    private String metodoPago;
+    private String estado;
+
+    public Pago() {
+    }
+
+    public Pago(int idPago, int idInscripcion, BigDecimal monto,
+                LocalDate fechaPago, String metodoPago, String estado) {
+        this.idPago = idPago;
+        this.idInscripcion = idInscripcion;
+        this.monto = monto;
+        this.fechaPago = fechaPago;
+        this.metodoPago = metodoPago;
+        this.estado = estado;
+    }
+
+    public int getIdPago() {
+        return idPago;
+    }
+
+    public void setIdPago(int idPago) {
+        this.idPago = idPago;
+    }
+
+    public int getIdInscripcion() {
+        return idInscripcion;
+    }
+
+    public void setIdInscripcion(int idInscripcion) {
+        this.idInscripcion = idInscripcion;
+    }
+
+    public BigDecimal getMonto() {
+        return monto;
+    }
+
+    public void setMonto(BigDecimal monto) {
+        this.monto = monto;
+    }
+
+    public LocalDate getFechaPago() {
+        return fechaPago;
+    }
+
+    public void setFechaPago(LocalDate fechaPago) {
+        this.fechaPago = fechaPago;
+    }
+
+    public String getMetodoPago() {
+        return metodoPago;
+    }
+
+    public void setMetodoPago(String metodoPago) {
+        this.metodoPago = metodoPago;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+}
