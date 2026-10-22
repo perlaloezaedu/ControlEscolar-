@@ -1,0 +1,85 @@
+package poo.modelo;
+
+import java.math.BigDecimal;
+
+public class Curso {
+
+    private int idCurso;
+    private String nombre;
+    private String descripcion;
+    private int duracion;
+    private BigDecimal precio;
+    private int idMaestro;
+    private String estado;
+
+    public Curso() {
+    }
+
+    public Curso(int idCurso, String nombre, String descripcion,
+                 int duracion, BigDecimal precio, int idMaestro,
+                 String estado) {
+        this.idCurso = idCurso;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.duracion = duracion;
+        this.precio = precio;
+        this.idMaestro = idMaestro;
+        this.estado = estado;
+    }
+
+    public int getIdCurso() {
+        return idCurso;
+    }
+
+    public void setIdCurso(int idCurso) {
+        this.idCurso = idCurso;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public int getDuracion() {
+        return duracion;
+    }
+
+    public void setDuracion(int duracion) {
+        this.duracion = duracion;
+    }
+
+    public BigDecimal getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(BigDecimal precio) {
+        this.precio = precio;
+    }
+
+    public int getIdMaestro() {
+        return idMaestro;
+    }
+
+    public void setIdMaestro(int idMaestro) {
+        this.idMaestro = idMaestro;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+}
