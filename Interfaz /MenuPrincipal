@@ -1,113 +1,481 @@
 package poo.interfaz;
 
-import java.awt.EventQueue;
-import java.awt.Color;
-import java.awt.Font;
+import poo.modelo.Alumno;
+import poo.modelo.Pago;
+import poo.servicio.AlumnoServicio;
+import poo.servicio.CursoServicio;
+import poo.servicio.PagoServicio;
 
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.sql.SQLException;
+
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.plaf.basic.BasicButtonUI;
 
 public class MenuPrincipal extends JFrame {
 
-    private static final long serialVersionUID = 1L;
-    private JPanel contentPane;
+	private static final long serialVersionUID = 1L;
 
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    MenuPrincipal frame = new MenuPrincipal();
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+	private static final Color AZUL_OSCURO = new Color(20, 40, 90);
+	private static final Color AZUL_HOVER = new Color(37, 70, 140);
+	private static final Color GRIS = new Color(100, 116, 139);
+	private static final Color ROJO = new Color(185, 55, 55);
 
-    public MenuPrincipal() {
-        setTitle("Menú Principal");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 850, 500);
-        setLocationRelativeTo(null);
+	private final CursoServicio cursoServicio = new CursoServicio();
+	private final AlumnoServicio alumnoServicio = new AlumnoServicio();
+	private final PagoServicio pagoServicio = new PagoServicio();
 
-        contentPane = new JPanel();
-        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-        setContentPane(contentPane);
-        contentPane.setLayout(null);
+	private JPanel contentPane;
+	private JPanel panelLateral;
+	private JPanel panelContenido;
 
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.setBackground(new Color(0, 128, 255));
-        menuBar.setBounds(10, 10, 810, 30);
-        contentPane.add(menuBar);
+	private JLabel lblLogo;
+	private JLabel lblSubtitulo;
+	private JButton btnInicio;
+	private JButton btnCursos;
+	private JButton btnContenidoCursos;
+	private JButton btnAlumnos;
+	private JButton btnInscripciones;
+	private JButton btnPagos;
+	private JButton btnCalificaciones;
+	private JButton btnCerrarSesion;
 
-        JMenu mnInicio = new JMenu("Inicio");
-        menuBar.add(mnInicio);
+	private JLabel lblTituloPagina;
+	private JLabel lblBienvenida;
+	private JLabel lblUsuario;
+	private JLabel lblResumen;
 
-        JMenuItem itemInicio = new JMenuItem("Página principal");
-        mnInicio.add(itemInicio);
+	private JPanel panelTarjetaCursos;
+	private JLabel lblNumCursos;
+	private JLabel lblTextoCursos;
 
-        JMenu mnCursos = new JMenu("Cursos");
-        menuBar.add(mnCursos);
-        agregarOpciones(mnCursos);
+	private JPanel panelTarjetaAlumnos;
+	private JLabel lblNumAlumnos;
+	private JLabel lblTextoAlumnos;
 
-        JMenu mnContenido = new JMenu("Contenido de cursos");
-        menuBar.add(mnContenido);
-        agregarOpciones(mnContenido);
+	private JPanel panelTarjetaPagados;
+	private JLabel lblNumPagados;
+	private JLabel lblTextoPagados;
 
-        JMenu mnAlumnos = new JMenu("Alumnos");
-        menuBar.add(mnAlumnos);
-        agregarOpciones(mnAlumnos);
+	private JPanel panelTarjetaPendientes;
+	private JLabel lblNumPendientes;
+	private JLabel lblTextoPendientes;
 
-        JMenu mnInscripciones = new JMenu("Inscripciones");
-        menuBar.add(mnInscripciones);
-        agregarOpciones(mnInscripciones);
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					MenuPrincipal frame = new MenuPrincipal();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 
-        JMenu mnPagos = new JMenu("Pagos");
-        menuBar.add(mnPagos);
-        agregarOpciones(mnPagos);
+	/**
+	 * Create the frame.
+	 */
+	public MenuPrincipal() {
+		setTitle("EduControl - Menú Principal");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setResizable(false);
 
-        JMenu mnCalificaciones = new JMenu("Calificaciones");
-        menuBar.add(mnCalificaciones);
-        agregarOpciones(mnCalificaciones);
+		contentPane = new JPanel();
+		contentPane.setBackground(new Color(245, 247, 252));
+		contentPane.setPreferredSize(new Dimension(1100, 560));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
 
-        JMenu mnSesion = new JMenu("Sesión");
-        menuBar.add(mnSesion);
+		panelLateral = new JPanel();
+		panelLateral.setBackground(new Color(20, 40, 90));
+		panelLateral.setBounds(0, 0, 200, 560);
+		contentPane.add(panelLateral);
+		panelLateral.setLayout(null);
 
-        JMenuItem itemCerrarSesion = new JMenuItem("Cerrar sesión");
-        mnSesion.add(itemCerrarSesion);
+		lblLogo = new JLabel("EDUCONTROL");
+		lblLogo.setFont(new Font("SansSerif", Font.BOLD, 22));
+		lblLogo.setForeground(Color.WHITE);
+		lblLogo.setBounds(20, 30, 170, 30);
+		panelLateral.add(lblLogo);
 
-        JLabel lblTitulo = new JLabel("BIENVENIDO A EDUCONTROL");
-        lblTitulo.setForeground(new Color(0, 0, 160));
-        lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
-        lblTitulo.setFont(new Font("Arial", Font.BOLD, 26));
-        lblTitulo.setBounds(100, 120, 650, 50);
-        contentPane.add(lblTitulo);
+		lblSubtitulo = new JLabel("Sistema Educativo");
+		lblSubtitulo.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblSubtitulo.setForeground(new Color(190, 205, 235));
+		lblSubtitulo.setBounds(20, 62, 170, 20);
+		panelLateral.add(lblSubtitulo);
 
-        JLabel lblDescripcion = new JLabel(
-                "Sistema de gestión educativa");
-        lblDescripcion.setForeground(new Color(0, 0, 160));
-        lblDescripcion.setHorizontalAlignment(SwingConstants.CENTER);
-        lblDescripcion.setFont(new Font("Arial", Font.PLAIN, 18));
-        lblDescripcion.setBounds(100, 180, 650, 35);
-        contentPane.add(lblDescripcion);
-    }
+		btnInicio = new JButton("Inicio");
+		btnInicio.setUI(new BasicButtonUI());
+		btnInicio.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnInicio.setForeground(Color.WHITE);
+		btnInicio.setBackground(new Color(20, 40, 90));
+		btnInicio.setOpaque(true);
+		btnInicio.setContentAreaFilled(true);
+		btnInicio.setBorderPainted(false);
+		btnInicio.setFocusPainted(false);
+		btnInicio.setHorizontalAlignment(SwingConstants.LEFT);
+		btnInicio.setBorder(new EmptyBorder(0, 16, 0, 0));
+		btnInicio.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnInicio.setBounds(15, 120, 170, 38);
+		panelLateral.add(btnInicio);
 
-    private void agregarOpciones(JMenu menu) {
-        JMenuItem registrar = new JMenuItem("Registrar");
-        JMenuItem consultar = new JMenuItem("Consultar");
-        JMenuItem modificar = new JMenuItem("Modificar");
-        JMenuItem eliminar = new JMenuItem("Eliminar");
+		btnCursos = new JButton("Cursos");
+		btnCursos.setUI(new BasicButtonUI());
+		btnCursos.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnCursos.setForeground(Color.WHITE);
+		btnCursos.setBackground(new Color(20, 40, 90));
+		btnCursos.setOpaque(true);
+		btnCursos.setContentAreaFilled(true);
+		btnCursos.setBorderPainted(false);
+		btnCursos.setFocusPainted(false);
+		btnCursos.setHorizontalAlignment(SwingConstants.LEFT);
+		btnCursos.setBorder(new EmptyBorder(0, 16, 0, 0));
+		btnCursos.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnCursos.setBounds(15, 166, 170, 38);
+		panelLateral.add(btnCursos);
 
-        menu.add(registrar);
-        menu.add(consultar);
-        menu.add(modificar);
-        menu.add(eliminar);
-    }
+		btnContenidoCursos = new JButton("Contenido de cursos");
+		btnContenidoCursos.setUI(new BasicButtonUI());
+		btnContenidoCursos.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnContenidoCursos.setForeground(Color.WHITE);
+		btnContenidoCursos.setBackground(new Color(20, 40, 90));
+		btnContenidoCursos.setOpaque(true);
+		btnContenidoCursos.setContentAreaFilled(true);
+		btnContenidoCursos.setBorderPainted(false);
+		btnContenidoCursos.setFocusPainted(false);
+		btnContenidoCursos.setHorizontalAlignment(SwingConstants.LEFT);
+		btnContenidoCursos.setBorder(new EmptyBorder(0, 16, 0, 0));
+		btnContenidoCursos.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnContenidoCursos.setBounds(15, 212, 170, 38);
+		panelLateral.add(btnContenidoCursos);
+
+		btnAlumnos = new JButton("Alumnos");
+		btnAlumnos.setUI(new BasicButtonUI());
+		btnAlumnos.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnAlumnos.setForeground(Color.WHITE);
+		btnAlumnos.setBackground(new Color(20, 40, 90));
+		btnAlumnos.setOpaque(true);
+		btnAlumnos.setContentAreaFilled(true);
+		btnAlumnos.setBorderPainted(false);
+		btnAlumnos.setFocusPainted(false);
+		btnAlumnos.setHorizontalAlignment(SwingConstants.LEFT);
+		btnAlumnos.setBorder(new EmptyBorder(0, 16, 0, 0));
+		btnAlumnos.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnAlumnos.setBounds(15, 258, 170, 38);
+		panelLateral.add(btnAlumnos);
+
+		btnInscripciones = new JButton("Inscripciones");
+		btnInscripciones.setUI(new BasicButtonUI());
+		btnInscripciones.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnInscripciones.setForeground(Color.WHITE);
+		btnInscripciones.setBackground(new Color(20, 40, 90));
+		btnInscripciones.setOpaque(true);
+		btnInscripciones.setContentAreaFilled(true);
+		btnInscripciones.setBorderPainted(false);
+		btnInscripciones.setFocusPainted(false);
+		btnInscripciones.setHorizontalAlignment(SwingConstants.LEFT);
+		btnInscripciones.setBorder(new EmptyBorder(0, 16, 0, 0));
+		btnInscripciones.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnInscripciones.setBounds(15, 304, 170, 38);
+		panelLateral.add(btnInscripciones);
+
+		btnPagos = new JButton("Pagos");
+		btnPagos.setUI(new BasicButtonUI());
+		btnPagos.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnPagos.setForeground(Color.WHITE);
+		btnPagos.setBackground(new Color(20, 40, 90));
+		btnPagos.setOpaque(true);
+		btnPagos.setContentAreaFilled(true);
+		btnPagos.setBorderPainted(false);
+		btnPagos.setFocusPainted(false);
+		btnPagos.setHorizontalAlignment(SwingConstants.LEFT);
+		btnPagos.setBorder(new EmptyBorder(0, 16, 0, 0));
+		btnPagos.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnPagos.setBounds(15, 350, 170, 38);
+		panelLateral.add(btnPagos);
+
+		btnCalificaciones = new JButton("Calificaciones");
+		btnCalificaciones.setUI(new BasicButtonUI());
+		btnCalificaciones.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnCalificaciones.setForeground(Color.WHITE);
+		btnCalificaciones.setBackground(new Color(20, 40, 90));
+		btnCalificaciones.setOpaque(true);
+		btnCalificaciones.setContentAreaFilled(true);
+		btnCalificaciones.setBorderPainted(false);
+		btnCalificaciones.setFocusPainted(false);
+		btnCalificaciones.setHorizontalAlignment(SwingConstants.LEFT);
+		btnCalificaciones.setBorder(new EmptyBorder(0, 16, 0, 0));
+		btnCalificaciones.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnCalificaciones.setBounds(15, 396, 170, 38);
+		panelLateral.add(btnCalificaciones);
+
+		btnCerrarSesion = new JButton("Cerrar sesión");
+		btnCerrarSesion.setUI(new BasicButtonUI());
+		btnCerrarSesion.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnCerrarSesion.setForeground(Color.WHITE);
+		btnCerrarSesion.setBackground(new Color(185, 55, 55));
+		btnCerrarSesion.setOpaque(true);
+		btnCerrarSesion.setContentAreaFilled(true);
+		btnCerrarSesion.setBorderPainted(false);
+		btnCerrarSesion.setFocusPainted(false);
+		btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnCerrarSesion.setBounds(15, 495, 170, 40);
+		panelLateral.add(btnCerrarSesion);
+
+		panelContenido = new JPanel();
+		panelContenido.setBackground(new Color(245, 247, 252));
+		panelContenido.setBounds(200, 0, 900, 560);
+		contentPane.add(panelContenido);
+		panelContenido.setLayout(null);
+
+		lblTituloPagina = new JLabel("Panel principal");
+		lblTituloPagina.setFont(new Font("SansSerif", Font.BOLD, 26));
+		lblTituloPagina.setForeground(new Color(20, 40, 90));
+		lblTituloPagina.setBounds(30, 22, 450, 34);
+		panelContenido.add(lblTituloPagina);
+
+		lblBienvenida = new JLabel("Bienvenido a EduControl");
+		lblBienvenida.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		lblBienvenida.setForeground(new Color(100, 116, 139));
+		lblBienvenida.setBounds(30, 58, 600, 22);
+		panelContenido.add(lblBienvenida);
+
+		lblUsuario = new JLabel("Administrador | ADMINISTRADOR");
+		lblUsuario.setFont(new Font("SansSerif", Font.BOLD, 13));
+		lblUsuario.setForeground(new Color(20, 40, 90));
+		lblUsuario.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblUsuario.setBounds(480, 30, 390, 22);
+		panelContenido.add(lblUsuario);
+
+		lblResumen = new JLabel("Resumen");
+		lblResumen.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblResumen.setForeground(new Color(20, 40, 90));
+		lblResumen.setBounds(30, 100, 400, 24);
+		panelContenido.add(lblResumen);
+		
+		panelTarjetaCursos = new JPanel();
+		panelTarjetaCursos.setBackground(Color.WHITE);
+		panelTarjetaCursos.setBorder(new LineBorder(new Color(203, 216, 237), 1));
+		panelTarjetaCursos.setBounds(30, 130, 318, 157);
+		panelContenido.add(panelTarjetaCursos);
+		panelTarjetaCursos.setLayout(null);
+
+		lblNumCursos = new JLabel("0");
+		lblNumCursos.setFont(new Font("SansSerif", Font.BOLD, 32));
+		lblNumCursos.setForeground(new Color(37, 99, 235));
+		lblNumCursos.setBounds(20, 10, 160, 42);
+		panelTarjetaCursos.add(lblNumCursos);
+
+		lblTextoCursos = new JLabel("Cursos registrados");
+		lblTextoCursos.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblTextoCursos.setForeground(new Color(100, 116, 139));
+		lblTextoCursos.setBounds(20, 56, 170, 20);
+		panelTarjetaCursos.add(lblTextoCursos);
+
+		panelTarjetaAlumnos = new JPanel();
+		panelTarjetaAlumnos.setBackground(Color.WHITE);
+		panelTarjetaAlumnos.setBorder(new LineBorder(new Color(203, 216, 237), 1));
+		panelTarjetaAlumnos.setBounds(30, 297, 318, 157);
+		panelContenido.add(panelTarjetaAlumnos);
+		panelTarjetaAlumnos.setLayout(null);
+
+		lblNumAlumnos = new JLabel("0");
+		lblNumAlumnos.setFont(new Font("SansSerif", Font.BOLD, 32));
+		lblNumAlumnos.setForeground(new Color(37, 99, 235));
+		lblNumAlumnos.setBounds(20, 10, 160, 42);
+		panelTarjetaAlumnos.add(lblNumAlumnos);
+
+		lblTextoAlumnos = new JLabel("Alumnos activos");
+		lblTextoAlumnos.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblTextoAlumnos.setForeground(new Color(100, 116, 139));
+		lblTextoAlumnos.setBounds(20, 56, 170, 20);
+		panelTarjetaAlumnos.add(lblTextoAlumnos);
+
+		panelTarjetaPagados = new JPanel();
+		panelTarjetaPagados.setBackground(Color.WHITE);
+		panelTarjetaPagados.setBorder(new LineBorder(new Color(203, 216, 237), 1));
+		panelTarjetaPagados.setBounds(385, 130, 278, 157);
+		panelContenido.add(panelTarjetaPagados);
+		panelTarjetaPagados.setLayout(null);
+
+		lblNumPagados = new JLabel("0");
+		lblNumPagados.setFont(new Font("SansSerif", Font.BOLD, 32));
+		lblNumPagados.setForeground(new Color(22, 138, 85));
+		lblNumPagados.setBounds(20, 10, 160, 42);
+		panelTarjetaPagados.add(lblNumPagados);
+
+		lblTextoPagados = new JLabel("Pagos realizados");
+		lblTextoPagados.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblTextoPagados.setForeground(new Color(100, 116, 139));
+		lblTextoPagados.setBounds(20, 56, 170, 20);
+		panelTarjetaPagados.add(lblTextoPagados);
+
+		panelTarjetaPendientes = new JPanel();
+		panelTarjetaPendientes.setBackground(Color.WHITE);
+		panelTarjetaPendientes.setBorder(new LineBorder(new Color(203, 216, 237), 1));
+		panelTarjetaPendientes.setBounds(385, 297, 278, 157);
+		panelContenido.add(panelTarjetaPendientes);
+		panelTarjetaPendientes.setLayout(null);
+
+		lblNumPendientes = new JLabel("0");
+		lblNumPendientes.setFont(new Font("SansSerif", Font.BOLD, 32));
+		lblNumPendientes.setForeground(new Color(185, 55, 55));
+		lblNumPendientes.setBounds(20, 10, 160, 42);
+		panelTarjetaPendientes.add(lblNumPendientes);
+
+		lblTextoPendientes = new JLabel("Pagos pendientes");
+		lblTextoPendientes.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblTextoPendientes.setForeground(new Color(100, 116, 139));
+		lblTextoPendientes.setBounds(20, 56, 170, 20);
+		panelTarjetaPendientes.add(lblTextoPendientes);
+
+		btnInicio.addActionListener(e -> cargarResumen());
+		btnCursos.addActionListener(e -> abrir(new GestionCursos()));
+		btnContenidoCursos.addActionListener(e -> abrir(new GestionContenidoCursos()));
+		btnAlumnos.addActionListener(e -> abrir(new GestionAlumnos()));
+		btnInscripciones.addActionListener(e -> abrir(new GestionInscripciones()));
+		btnPagos.addActionListener(e -> abrir(new GestionPagos()));
+		btnCalificaciones.addActionListener(e -> abrir(new GestionCalificaciones()));
+		btnCerrarSesion.addActionListener(e -> cerrarSesion());
+
+		agregarEfectoHover(btnInicio);
+		agregarEfectoHover(btnCursos);
+		agregarEfectoHover(btnContenidoCursos);
+		agregarEfectoHover(btnAlumnos);
+		agregarEfectoHover(btnInscripciones);
+		agregarEfectoHover(btnPagos);
+		agregarEfectoHover(btnCalificaciones);
+
+		pack();
+		setLocationRelativeTo(null);
+
+		cargarResumen();
+	}
+
+	private void agregarEfectoHover(final JButton boton) {
+		boton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				boton.setBackground(AZUL_HOVER);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				boton.setBackground(AZUL_OSCURO);
+			}
+		});
+	}
+
+	private void abrir(JFrame ventana) {
+		ventana.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent e) {
+				cargarResumen();
+			}
+		});
+		ventana.setVisible(true);
+	}
+
+	private void cargarResumen() {
+		try {
+			int totalCursos = cursoServicio.listar().size();
+
+			int alumnosActivos = 0;
+			for (Alumno a : alumnoServicio.listar()) {
+				if ("ACTIVO".equals(a.getEstado())) {
+					alumnosActivos++;
+				}
+			}
+
+			int pagados = 0;
+			int pendientes = 0;
+			for (Pago p : pagoServicio.listar()) {
+				if ("PAGADO".equals(p.getEstado())) {
+					pagados++;
+				} else if ("PENDIENTE".equals(p.getEstado())) {
+					pendientes++;
+				}
+			}
+
+			lblNumCursos.setText(String.valueOf(totalCursos));
+			lblNumAlumnos.setText(String.valueOf(alumnosActivos));
+			lblNumPagados.setText(String.valueOf(pagados));
+			lblNumPendientes.setText(String.valueOf(pendientes));
+			lblBienvenida.setForeground(GRIS);
+			lblBienvenida.setText("Bienvenido a EduControl");
+
+		} catch (SQLException ex) {
+			lblNumCursos.setText("-");
+			lblNumAlumnos.setText("-");
+			lblNumPagados.setText("-");
+			lblNumPendientes.setText("-");
+			lblBienvenida.setForeground(ROJO);
+			lblBienvenida.setText("No se pudo cargar el resumen: " + ex.getMessage());
+		}
+	}
+
+	public void establecerUsuario(String nombre, String rol) {
+		lblUsuario.setText(nombre + " | " + rol);
+
+		if ("ALUMNO".equalsIgnoreCase(rol)) {
+			aplicarVistaAlumno();
+		}
+	}
+
+	private void aplicarVistaAlumno() {
+		btnCursos.setVisible(false);
+		btnContenidoCursos.setVisible(false);
+		btnAlumnos.setVisible(false);
+		btnInscripciones.setVisible(false);
+		btnPagos.setVisible(false);
+		btnCalificaciones.setVisible(false);
+
+		lblResumen.setVisible(false);
+		panelTarjetaCursos.setVisible(false);
+		panelTarjetaAlumnos.setVisible(false);
+		panelTarjetaPagados.setVisible(false);
+		panelTarjetaPendientes.setVisible(false);
+
+		JLabel lblAvisoAlumno = new JLabel("<html>Tu cuenta es de tipo ALUMNO. La consulta de tus "
+				+ "calificaciones, avance y pagos se hará desde el panel del alumno.</html>");
+		lblAvisoAlumno.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		lblAvisoAlumno.setForeground(GRIS);
+		lblAvisoAlumno.setBounds(30, 100, 800, 50);
+		panelContenido.add(lblAvisoAlumno);
+		panelContenido.repaint();
+	}
+
+	private void cerrarSesion() {
+		int opcion = JOptionPane.showConfirmDialog(
+				this, "¿Deseas cerrar la sesión?", "Cerrar sesión",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
+
+		if (opcion == JOptionPane.YES_OPTION) {
+			Login login = new Login();
+			login.setLocationRelativeTo(null);
+			login.setVisible(true);
+			dispose();
+		}
+	}
 }
