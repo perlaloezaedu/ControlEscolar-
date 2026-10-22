@@ -1,0 +1,55 @@
+package poo.servicio;
+
+import poo.dao.PagoDAO;
+import poo.modelo.Pago;
+import java.sql.SQLException;
+import java.util.List;
+
+public class PagoServicio {
+    private final PagoDAO dao = new PagoDAO();
+
+    public boolean registrar(Pago x) throws SQLException {
+        validar(x);
+        return dao.registrar(x);
+    }
+
+    public List<Pago> listar() throws SQLException {
+        return dao.listar();
+    }
+
+    public Pago buscarPorId(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.buscarPorId(id);
+    }
+
+    public boolean modificar(Pago x) throws SQLException {
+        if (x.getIdPago() <= 0) throw new IllegalArgumentException("ID inválido.");
+        validar(x);
+        return dao.modificar(x);
+    }
+
+    public boolean eliminar(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.eliminar(id);
+    }
+
+    private void validar(Pago x) {
+        if (x == null || x.getIdInscripcion() <= 0 || x.getMonto() == null
+                || x.getMonto().signum() < 0 || x.getFechaPago() == null
+                || x.getMetodoPago() == null || x.getEstado() == null) {
+            throw new IllegalArgumentException(
+                "Revisa inscripción, monto, fecha, método y estado del pago.");
+        }
+
+        if (!java.util.Arrays.asList(
+                "EFECTIVO", "TRANSFERENCIA", "DEBITO", "CREDITO")
+                .contains(x.getMetodoPago())) {
+            throw new IllegalArgumentException("Método de pago no válido.");
+        }
+
+        if (!java.util.Arrays.asList("PAGADO", "PENDIENTE")
+                .contains(x.getEstado())) {
+            throw new IllegalArgumentException("Estado de pago no válido.");
+        }
+    }
+}
