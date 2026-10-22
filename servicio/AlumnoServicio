@@ -1,0 +1,56 @@
+package poo.servicio;
+
+import poo.dao.AlumnoDAO;
+import poo.modelo.Alumno;
+import java.sql.SQLException;
+import java.util.List;
+
+public class AlumnoServicio {
+    private final AlumnoDAO dao = new AlumnoDAO();
+
+    public boolean registrar(Alumno x) throws SQLException {
+        validar(x);
+        return dao.registrar(x);
+    }
+
+    public List<Alumno> listar() throws SQLException {
+        return dao.listar();
+    }
+
+    public Alumno buscarPorId(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.buscarPorId(id);
+    }
+
+    public boolean modificar(Alumno x) throws SQLException {
+        if (x.getIdAlumno() <= 0) throw new IllegalArgumentException("Selecciona un alumno.");
+        validar(x);
+        return dao.modificar(x);
+    }
+
+    public boolean eliminar(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.eliminar(id);
+    }
+
+    private void validar(Alumno x) {
+        if (x == null || vacio(x.getNombre()) || vacio(x.getApellidos())
+                || vacio(x.getCorreo()) || x.getFechaNacimiento() == null) {
+            throw new IllegalArgumentException(
+                "Nombre, apellidos, correo y fecha son obligatorios.");
+        }
+        if (!x.getCorreo().contains("@")) {
+            throw new IllegalArgumentException("Correo inválido.");
+        }
+    }
+
+    private boolean vacio(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    public Alumno buscarPorUsuario(int idUsuario) throws SQLException {
+        if (idUsuario <= 0) throw new IllegalArgumentException("Usuario inválido.");
+        return dao.buscarPorIdUsuario(idUsuario);
+    }
+}
+
