@@ -1,0 +1,50 @@
+package poo.servicio;
+
+import poo.dao.UsuarioDAO;
+import poo.modelo.Alumno;
+import poo.modelo.Usuario;
+
+import java.sql.SQLException;
+import java.util.List;
+
+public class UsuarioServicio {
+
+    private final UsuarioDAO dao = new UsuarioDAO();
+
+    public List<Usuario> listarMaestros() throws SQLException {
+        return dao.listarMaestros();
+    }
+    
+    public void crearAccesoAlumno(Alumno alumno, String contrasena)
+            throws SQLException {
+
+        if (alumno == null) {
+            throw new IllegalArgumentException("Selecciona un alumno.");
+        }
+        if (alumno.getIdUsuario() != null) {
+            throw new IllegalArgumentException("Este alumno ya tiene acceso al sistema.");
+        }
+        if (!"ACTIVO".equals(alumno.getEstado())) {
+            throw new IllegalArgumentException(
+                "El alumno está INACTIVO. Actívalo antes de crearle acceso.");
+        }
+        if (contrasena == null || contrasena.length() < 4) {
+            throw new IllegalArgumentException(
+                "La contraseña debe tener al menos 4 caracteres.");
+        }
+
+        String correo = alumno.getCorreo().trim();
+
+        if (dao.buscarPorCorreo(correo).isPresent()) {
+            throw new IllegalArgumentException(
+                "Ya existe un usuario con el correo " + correo + ".");
+        }
+
+        String nombre = (alumno.getNombre() + " " + alumno.getApellidos()).trim();
+        if (nombre.length() > 100) {
+            nombre = nombre.substring(0, 100);
+        }
+
+        dao.crearAccesoAlumno(alumno.getIdAlumno(), nombre, correo, contrasena);
+    }
+}
