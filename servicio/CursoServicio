@@ -1,0 +1,44 @@
+package poo.servicio;
+
+import poo.dao.CursoDAO;
+import poo.modelo.Curso;
+import java.sql.SQLException;
+import java.util.List;
+
+public class CursoServicio {
+    private final CursoDAO dao = new CursoDAO();
+
+    public boolean registrar(Curso x) throws SQLException {
+        validar(x);
+        return dao.registrar(x);
+    }
+
+    public List<Curso> listar() throws SQLException {
+        return dao.listar();
+    }
+
+    public Curso buscarPorId(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.buscarPorId(id);
+    }
+
+    public boolean modificar(Curso x) throws SQLException {
+        if (x.getIdCurso() <= 0) throw new IllegalArgumentException("ID inválido.");
+        validar(x);
+        return dao.modificar(x);
+    }
+
+    public boolean eliminar(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.eliminar(id);
+    }
+
+    private void validar(Curso x) {
+        if (x == null || x.getNombre() == null || x.getNombre().trim().isEmpty()
+                || x.getPrecio() == null || x.getPrecio().signum() < 0
+                || x.getDuracion() <= 0 || x.getIdMaestro() <= 0) {
+            throw new IllegalArgumentException(
+                "Revisa nombre, precio, duración e ID del maestro.");
+        }
+    }
+}
