@@ -1,1 +1,187 @@
+package poo.dao;
+
+import poo.conexion.Conexion;
+import poo.modelo.Alumno;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+
+public class AlumnoDAO {
+
+    public boolean registrar(Alumno a) throws SQLException {
+        String sql = "INSERT INTO alumnos "
+                + "(nombre, apellidos, telefono, correo, direccion, "
+                + "fecha_nacimiento, estado, id_usuario) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setString(1, a.getNombre());
+            p.setString(2, a.getApellidos());
+            p.setString(3, a.getTelefono());
+            p.setString(4, a.getCorreo());
+            p.setString(5, a.getDireccion());
+
+            if (a.getFechaNacimiento() == null) {
+                p.setNull(6, Types.DATE);
+            } else {
+                p.setDate(6, java.sql.Date.valueOf(a.getFechaNacimiento()));
+            }
+
+            p.setString(7, a.getEstado());
+
+            if (a.getIdUsuario() == null) {
+                p.setNull(8, Types.INTEGER);
+            } else {
+                p.setInt(8, a.getIdUsuario());
+            }
+
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    public List<Alumno> listar() throws SQLException {
+        List<Alumno> lista = new ArrayList<>();
+        String sql = "SELECT * FROM alumnos ORDER BY id_alumno";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql);
+             ResultSet r = p.executeQuery()) {
+
+            while (r.next()) {
+                java.sql.Date fecha = r.getDate("fecha_nacimiento");
+                Object idUsuario = r.getObject("id_usuario");
+
+                lista.add(new Alumno(
+                    r.getInt("id_alumno"),
+                    r.getString("nombre"),
+                    r.getString("apellidos"),
+                    r.getString("telefono"),
+                    r.getString("correo"),
+                    r.getString("direccion"),
+                    fecha == null ? null : fecha.toLocalDate(),
+                    r.getString("estado"),
+                    idUsuario == null ? null
+                        : ((Number) idUsuario).intValue()
+                ));
+            }
+        }
+
+        return lista;
+    }
+
+    public Alumno buscarPorId(int id) throws SQLException {
+        String sql = "SELECT * FROM alumnos WHERE id_alumno = ?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, id);
+
+            try (ResultSet r = p.executeQuery()) {
+                if (!r.next()) {
+                    return null;
+                }
+
+                java.sql.Date fecha = r.getDate("fecha_nacimiento");
+                Object idUsuario = r.getObject("id_usuario");
+
+                return new Alumno(
+                    r.getInt("id_alumno"),
+                    r.getString("nombre"),
+                    r.getString("apellidos"),
+                    r.getString("telefono"),
+                    r.getString("correo"),
+                    r.getString("direccion"),
+                    fecha == null ? null : fecha.toLocalDate(),
+                    r.getString("estado"),
+                    idUsuario == null ? null
+                        : ((Number) idUsuario).intValue()
+                );
+            }
+        }
+    }
+
+    public boolean modificar(Alumno a) throws SQLException {
+        String sql = "UPDATE alumnos SET nombre=?, apellidos=?, "
+                + "telefono=?, correo=?, direccion=?, fecha_nacimiento=?, "
+                + "estado=?, id_usuario=? WHERE id_alumno=?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setString(1, a.getNombre());
+            p.setString(2, a.getApellidos());
+            p.setString(3, a.getTelefono());
+            p.setString(4, a.getCorreo());
+            p.setString(5, a.getDireccion());
+
+            if (a.getFechaNacimiento() == null) {
+                p.setNull(6, Types.DATE);
+            } else {
+                p.setDate(6, java.sql.Date.valueOf(a.getFechaNacimiento()));
+            }
+
+            p.setString(7, a.getEstado());
+
+            if (a.getIdUsuario() == null) {
+                p.setNull(8, Types.INTEGER);
+            } else {
+                p.setInt(8, a.getIdUsuario());
+            }
+
+            p.setInt(9, a.getIdAlumno());
+
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    public boolean eliminar(int id) throws SQLException {
+        String sql = "DELETE FROM alumnos WHERE id_alumno = ?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, id);
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    public Alumno buscarPorIdUsuario(int idUsuario) throws SQLException {
+        String sql = "SELECT * FROM alumnos WHERE id_usuario = ?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, idUsuario);
+
+            try (ResultSet r = p.executeQuery()) {
+                if (!r.next()) {
+                    return null;
+                }
+
+                java.sql.Date fecha = r.getDate("fecha_nacimiento");
+                Object idUsr = r.getObject("id_usuario");
+
+                return new Alumno(
+                    r.getInt("id_alumno"),
+                    r.getString("nombre"),
+                    r.getString("apellidos"),
+                    r.getString("telefono"),
+                    r.getString("correo"),
+                    r.getString("direccion"),
+                    fecha == null ? null : fecha.toLocalDate(),
+                    r.getString("estado"),
+                    idUsr == null ? null : ((Number) idUsr).intValue()
+                );
+            }
+        }
+    }
+}
 
