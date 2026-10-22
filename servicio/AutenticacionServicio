@@ -1,0 +1,45 @@
+package poo.servicio;
+
+import poo.dao.UsuarioDAO;
+import poo.modelo.Usuario;
+
+import java.sql.SQLException;
+import java.util.Optional;
+
+public class AutenticacionServicio {
+
+    private final UsuarioDAO usuarioDAO;
+
+    public AutenticacionServicio() {
+        this.usuarioDAO = new UsuarioDAO();
+    }
+
+    public Optional<Usuario> iniciarSesion(
+            String correo, String contraseña) throws SQLException {
+
+        if (correo == null || correo.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                "El correo es obligatorio."
+            );
+        }
+
+        if (contraseña == null || contraseña.isEmpty()) {
+            throw new IllegalArgumentException(
+                "La contraseña es obligatoria."
+            );
+        }
+
+        String correoValidado = correo.trim();
+
+        if (!correoValidado.matches(
+                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+            throw new IllegalArgumentException(
+                "Ingresa un correo electrónico válido."
+            );
+        }
+
+        return usuarioDAO.buscarPorCorreoYContrasena(
+            correoValidado, contraseña
+        );
+    }
+}
