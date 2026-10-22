@@ -1,0 +1,113 @@
+package poo.dao;
+
+import poo.conexion.Conexion;
+import poo.modelo.Pago;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PagoDAO {
+
+    public boolean registrar(Pago x) throws SQLException {
+        String sql = "INSERT INTO pagos "
+                + "(id_inscripcion, monto, fecha_pago, metodo_pago, estado) "
+                + "VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, x.getIdInscripcion());
+            p.setBigDecimal(2, x.getMonto());
+            p.setDate(3, java.sql.Date.valueOf(x.getFechaPago()));
+            p.setString(4, x.getMetodoPago());
+            p.setString(5, x.getEstado());
+
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    public List<Pago> listar() throws SQLException {
+        List<Pago> lista = new ArrayList<>();
+        String sql = "SELECT * FROM pagos ORDER BY id_pago";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql);
+             ResultSet r = p.executeQuery()) {
+
+            while (r.next()) {
+                java.sql.Date fecha = r.getDate("fecha_pago");
+
+                lista.add(new Pago(
+                    r.getInt("id_pago"),
+                    r.getInt("id_inscripcion"),
+                    r.getBigDecimal("monto"),
+                    fecha == null ? null : fecha.toLocalDate(),
+                    r.getString("metodo_pago"),
+                    r.getString("estado")
+                ));
+            }
+        }
+
+        return lista;
+    }
+
+    public Pago buscarPorId(int id) throws SQLException {
+        String sql = "SELECT * FROM pagos WHERE id_pago = ?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, id);
+
+            try (ResultSet r = p.executeQuery()) {
+                if (!r.next()) {
+                    return null;
+                }
+
+                java.sql.Date fecha = r.getDate("fecha_pago");
+
+                return new Pago(
+                    r.getInt("id_pago"),
+                    r.getInt("id_inscripcion"),
+                    r.getBigDecimal("monto"),
+                    fecha == null ? null : fecha.toLocalDate(),
+                    r.getString("metodo_pago"),
+                    r.getString("estado")
+                );
+            }
+        }
+    }
+
+    public boolean modificar(Pago x) throws SQLException {
+        String sql = "UPDATE pagos SET id_inscripcion=?, monto=?, "
+                + "fecha_pago=?, metodo_pago=?, estado=? WHERE id_pago=?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, x.getIdInscripcion());
+            p.setBigDecimal(2, x.getMonto());
+            p.setDate(3, java.sql.Date.valueOf(x.getFechaPago()));
+            p.setString(4, x.getMetodoPago());
+            p.setString(5, x.getEstado());
+            p.setInt(6, x.getIdPago());
+
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    public boolean eliminar(int id) throws SQLException {
+        String sql = "DELETE FROM pagos WHERE id_pago = ?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, id);
+            return p.executeUpdate() > 0;
+        }
+    }
+}
