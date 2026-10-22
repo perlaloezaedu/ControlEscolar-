@@ -1,0 +1,76 @@
+package poo.modelo;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+public class Calificacion {
+
+    private int idCalificacion;
+    private int idInscripcion;
+    private String tipoEvaluacion;
+    private BigDecimal calificacion;
+    private LocalDate fechaEvaluacion;
+    private String observaciones;
+
+    public Calificacion() {
+    }
+
+    public Calificacion(int idCalificacion, int idInscripcion,
+                        String tipoEvaluacion, BigDecimal calificacion,
+                        LocalDate fechaEvaluacion, String observaciones) {
+        this.idCalificacion = idCalificacion;
+        this.idInscripcion = idInscripcion;
+        this.tipoEvaluacion = tipoEvaluacion;
+        this.calificacion = calificacion;
+        this.fechaEvaluacion = fechaEvaluacion;
+        this.observaciones = observaciones;
+    }
+
+    public int getIdCalificacion() {
+        return idCalificacion;
+    }
+
+    public void setIdCalificacion(int idCalificacion) {
+        this.idCalificacion = idCalificacion;
+    }
+
+    public int getIdInscripcion() {
+        return idInscripcion;
+    }
+
+    public void setIdInscripcion(int idInscripcion) {
+        this.idInscripcion = idInscripcion;
+    }
+
+    public String getTipoEvaluacion() {
+        return tipoEvaluacion;
+    }
+
+    public void setTipoEvaluacion(String tipoEvaluacion) {
+        this.tipoEvaluacion = tipoEvaluacion;
+    }
+
+    public BigDecimal getCalificacion() {
+        return calificacion;
+    }
+
+    public void setCalificacion(BigDecimal calificacion) {
+        this.calificacion = calificacion;
+    }
+
+    public LocalDate getFechaEvaluacion() {
+        return fechaEvaluacion;
+    }
+
+    public void setFechaEvaluacion(LocalDate fechaEvaluacion) {
+        this.fechaEvaluacion = fechaEvaluacion;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
+    }
+}
