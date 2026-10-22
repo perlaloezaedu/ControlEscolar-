@@ -1,16 +1,17 @@
 package poo.interfaz;
 
-import poo.conexion.Conexion;
+import poo.modelo.Usuario;
+import poo.servicio.AutenticacionServicio;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class Login extends JFrame {
+
+    private static final long serialVersionUID = 1L;
 
     private JTextField txtCorreo;
     private JPasswordField txtContrasena;
@@ -21,13 +22,16 @@ public class Login extends JFrame {
     private final Color azulOscuro = new Color(20, 40, 90);
     private final Color gris = new Color(100, 116, 139);
 
+    private final AutenticacionServicio autenticacionServicio =
+            new AutenticacionServicio();
+
     public Login() {
         configurarVentana();
         crearInterfaz();
     }
 
     private void configurarVentana() {
-        setTitle("Inicio de Sesión");
+        setTitle("EduControl - Inicio de sesión");
         setSize(850, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -35,17 +39,13 @@ public class Login extends JFrame {
     }
 
     private void crearInterfaz() {
-        JPanel principal = new JPanel(new BorderLayout());
+        JPanel principal = new JPanel(new BorderLayout(0, 20));
         principal.setBackground(Color.WHITE);
-        principal.setBorder(new EmptyBorder(25, 45, 20, 45));
+        principal.setBorder(new EmptyBorder(25, 45, 25, 45));
 
         JPanel encabezado = new JPanel();
         encabezado.setLayout(new BoxLayout(encabezado, BoxLayout.Y_AXIS));
         encabezado.setBackground(Color.WHITE);
-
-        JLabel icono = new JLabel("🎓");
-        icono.setFont(new Font("SansSerif", Font.PLAIN, 45));
-        icono.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel titulo = new JLabel("EDUCONTROL");
         titulo.setFont(new Font("SansSerif", Font.BOLD, 34));
@@ -56,84 +56,73 @@ public class Login extends JFrame {
         subtitulo.setFont(new Font("SansSerif", Font.PLAIN, 17));
         subtitulo.setForeground(gris);
         subtitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        encabezado.add(icono);
         encabezado.add(titulo);
         encabezado.add(subtitulo);
 
-        JPanel formulario = new JPanel();
+        JPanel formulario = new JPanel(null);
         formulario.setBackground(Color.WHITE);
         formulario.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(
-                new Color(220, 230, 243), 2),
-            new EmptyBorder(20, 25, 20, 25)
+                BorderFactory.createLineBorder(new Color(220, 230, 243), 2), new EmptyBorder(20, 25, 20, 25)
         ));
 
-        JLabel tituloLogin = new JLabel("Iniciar Sesión");
-        tituloLogin.setBounds(270, 10, 175, 35);
-        tituloLogin.setFont(new Font("SansSerif", Font.BOLD, 27));
+        JLabel tituloLogin = new JLabel("Iniciar sesión");
+        tituloLogin.setBounds(250, 15, 220, 35);
+        tituloLogin.setFont(
+                new Font("SansSerif", Font.BOLD, 27));
         tituloLogin.setForeground(azulOscuro);
 
-        JLabel etiquetaCorreo = new JLabel("Correo electrónico:");
-        etiquetaCorreo.setBounds(27, 64, 166, 20);
-        etiquetaCorreo.setFont(new Font("SansSerif", Font.BOLD, 15));
+        JLabel etiquetaCorreo =
+                new JLabel("Correo electrónico:");
+        etiquetaCorreo.setBounds(27, 65, 200, 25);
+        etiquetaCorreo.setFont(
+                new Font("SansSerif", Font.BOLD, 15));
         etiquetaCorreo.setForeground(azulOscuro);
 
         txtCorreo = new JTextField();
-        txtCorreo.setBounds(27, 94, 692, 42);
-        txtCorreo.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        txtCorreo.setMaximumSize(
-            new Dimension(Integer.MAX_VALUE, 42));
+        txtCorreo.setBounds(27, 95, 692, 42);
+        txtCorreo.setFont(
+                new Font("SansSerif", Font.PLAIN, 16));
         txtCorreo.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(
-                new Color(203, 216, 237), 1),
-            new EmptyBorder(8, 10, 8, 10)
+                BorderFactory.createLineBorder(
+                        new Color(203, 216, 237), 1),
+                new EmptyBorder(8, 10, 8, 10)
         ));
 
         JLabel etiquetaContrasena = new JLabel("Contraseña:");
-        etiquetaContrasena.setBounds(27, 146, 131, 20);
+        etiquetaContrasena.setBounds(27, 150, 150, 25);
         etiquetaContrasena.setFont(
-            new Font("SansSerif", Font.BOLD, 15));
+                new Font("SansSerif", Font.BOLD, 15));
         etiquetaContrasena.setForeground(azulOscuro);
 
         txtContrasena = new JPasswordField();
-        txtContrasena.setBounds(27, 172, 692, 42);
+        txtContrasena.setBounds(27, 180, 692, 42);
         txtContrasena.setFont(
-            new Font("SansSerif", Font.PLAIN, 16));
-        txtContrasena.setMaximumSize(
-            new Dimension(Integer.MAX_VALUE, 42));
+                new Font("SansSerif", Font.PLAIN, 16));
         txtContrasena.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(
-                new Color(203, 216, 237), 1),
-            new EmptyBorder(8, 10, 8, 10)
+                BorderFactory.createLineBorder(
+                        new Color(203, 216, 237), 1),
+                new EmptyBorder(8, 10, 8, 10)
         ));
 
         btnIngresar = new JButton("Ingresar");
-        btnIngresar.setBounds(42, 255, 652, 45);
+        btnIngresar.setBounds(42, 245, 652, 45);
         btnIngresar.setFont(
-            new Font("SansSerif", Font.BOLD, 16));
+                new Font("SansSerif", Font.BOLD, 16));
         btnIngresar.setForeground(Color.WHITE);
         btnIngresar.setBackground(azul);
         btnIngresar.setFocusPainted(false);
         btnIngresar.setCursor(
-            new Cursor(Cursor.HAND_CURSOR));
-        btnIngresar.setMaximumSize(
-            new Dimension(Integer.MAX_VALUE, 45));
-        btnIngresar.setAlignmentX(Component.LEFT_ALIGNMENT);
+                new Cursor(Cursor.HAND_CURSOR));
 
         btnSalir = new JButton("Salir");
-        btnSalir.setBounds(42, 310, 652, 42);
+        btnSalir.setBounds(42, 300, 652, 42);
         btnSalir.setFont(
-            new Font("SansSerif", Font.BOLD, 15));
+                new Font("SansSerif", Font.BOLD, 15));
         btnSalir.setForeground(azulOscuro);
         btnSalir.setBackground(new Color(239, 244, 251));
         btnSalir.setFocusPainted(false);
         btnSalir.setCursor(
-            new Cursor(Cursor.HAND_CURSOR));
-        btnSalir.setMaximumSize(
-            new Dimension(Integer.MAX_VALUE, 42));
-        btnSalir.setAlignmentX(Component.LEFT_ALIGNMENT);
-        formulario.setLayout(null);
+                new Cursor(Cursor.HAND_CURSOR));
 
         formulario.add(tituloLogin);
         formulario.add(etiquetaCorreo);
@@ -149,7 +138,7 @@ public class Login extends JFrame {
         setContentPane(principal);
 
         btnIngresar.addActionListener(e -> iniciarSesion());
-        btnSalir.addActionListener(e -> System.exit(0));
+        btnSalir.addActionListener(e -> salir());
 
         getRootPane().setDefaultButton(btnIngresar);
     }
@@ -157,69 +146,104 @@ public class Login extends JFrame {
     private void iniciarSesion() {
         String correo = txtCorreo.getText().trim();
         String contrasena =
-            new String(txtContrasena.getPassword());
+                new String(txtContrasena.getPassword());
 
         if (correo.isEmpty() || contrasena.isEmpty()) {
             JOptionPane.showMessageDialog(
-                this,
-                "Ingresa tu correo y contrasena.",
-                "Datos incompletos",
-                JOptionPane.WARNING_MESSAGE
+                    this,
+                    "Ingresa tu correo electrónico y contraseña.",
+                    "Datos incompletos",
+                    JOptionPane.WARNING_MESSAGE
             );
             return;
         }
 
-        String sql = "SELECT nombre, rol FROM usuarios "
-                   + "WHERE correo = ? AND `contraseña` = ? "
-                   + "AND estado = 'ACTIVO'";
+        btnIngresar.setEnabled(false);
 
-        try (Connection conexion = Conexion.conectar();
-             PreparedStatement consulta =
-                 conexion.prepareStatement(sql)) {
+        try {
+            Optional<Usuario> resultado =
+                    autenticacionServicio.iniciarSesion(
+                            correo, contrasena);
 
-            consulta.setString(1, correo);
-            consulta.setString(2, contrasena);
+            if (resultado.isPresent()) {
+                Usuario usuario = resultado.get();
 
-            try (ResultSet resultado =
-                     consulta.executeQuery()) {
-
-                if (resultado.next()) {
-                    String nombre =
-                        resultado.getString("nombre");
-                    String rol =
-                        resultado.getString("rol");
-
-                    JOptionPane.showMessageDialog(
+                JOptionPane.showMessageDialog(
                         this,
-                        "Bienvenido, " + nombre
-                    );
-                    MenuPrincipal menu = new MenuPrincipal();
-                    menu.establecerUsuario(nombre, rol);
-                    menu.setVisible(true);
-                    dispose();
-
+                        "Bienvenido, " + usuario.getNombre() + ".",
+                        "Acceso correcto",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+                if ("ALUMNO".equalsIgnoreCase(usuario.getRol())) {
+                    PanelAlumno panel = new PanelAlumno();
+                    panel.cargarDatos(usuario);
+                    panel.setLocationRelativeTo(null);
+                    panel.setVisible(true);
                 } else {
-                    JOptionPane.showMessageDialog(
+                    MenuPrincipal menu = new MenuPrincipal();
+                    menu.establecerUsuario(usuario.getNombre(), usuario.getRol());
+                    menu.setLocationRelativeTo(null);
+                    menu.setVisible(true);
+                }
+                dispose();
+
+            } else {
+                JOptionPane.showMessageDialog(
                         this,
-                        "Correo o contrasena incorrectos, "
-                        + "o usuario inactivo.",
+                        "Correo o contraseña incorrectos, "
+                                + "o usuario inactivo.",
                         "Acceso denegado",
                         JOptionPane.ERROR_MESSAGE
-                    );
+                );
 
-                    txtContrasena.setText("");
-                    txtContrasena.requestFocus();
-                }
+                txtContrasena.setText("");
+                txtContrasena.requestFocus();
             }
 
-        } catch (SQLException e) {
+        } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(
-                this,
-                "No se pudo conectar con la base de datos.\n"
-                + e.getMessage(),
-                "Error de conexion",
-                JOptionPane.ERROR_MESSAGE
+                    this,
+                    ex.getMessage(),
+                    "Datos inválidos",
+                    JOptionPane.WARNING_MESSAGE
             );
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudo acceder a la base de datos.\n"
+                            + ex.getMessage(),
+                    "Error de conexión",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ocurrió un error al iniciar sesión.\n"
+                            + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+        } finally {
+            if (isDisplayable()) {
+                btnIngresar.setEnabled(true);
+            }
+        }
+    }
+
+    private void salir() {
+        int opcion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Deseas salir de EduControl?",
+                "Confirmar salida",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (opcion == JOptionPane.YES_OPTION) {
+            dispose();
+            System.exit(0);
         }
     }
 
