@@ -1,0 +1,45 @@
+package poo.servicio;
+
+import poo.dao.ContenidoCursoDAO;
+import poo.modelo.ContenidoCurso;
+import java.sql.SQLException;
+import java.util.List;
+
+public class ContenidoCursoServicio {
+    private final ContenidoCursoDAO dao = new ContenidoCursoDAO();
+
+    public boolean registrar(ContenidoCurso x) throws SQLException {
+        validar(x);
+        return dao.registrar(x);
+    }
+
+    public List<ContenidoCurso> listar() throws SQLException {
+        return dao.listar();
+    }
+
+    public ContenidoCurso buscarPorId(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.buscarPorId(id);
+    }
+
+    public boolean modificar(ContenidoCurso x) throws SQLException {
+        if (x.getIdContenido() <= 0) throw new IllegalArgumentException("ID inválido.");
+        validar(x);
+        return dao.modificar(x);
+    }
+
+    public boolean eliminar(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.eliminar(id);
+    }
+
+    private void validar(ContenidoCurso x) {
+        if (x == null || x.getIdCurso() <= 0
+                || x.getTitulo() == null || x.getTitulo().trim().isEmpty()
+                || x.getTipo() == null || x.getTipo().trim().isEmpty()
+                || x.getOrden() < 0) {
+            throw new IllegalArgumentException(
+                "Revisa el curso, título, tipo y orden del contenido.");
+        }
+    }
+}
