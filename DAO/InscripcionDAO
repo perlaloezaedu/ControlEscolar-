@@ -1,0 +1,110 @@
+package poo.dao;
+
+import poo.conexion.Conexion;
+import poo.modelo.Inscripcion;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class InscripcionDAO {
+
+    public boolean registrar(Inscripcion x) throws SQLException {
+        String sql = "INSERT INTO inscripciones "
+                + "(id_alumno, id_curso, fecha_inscripcion, estado) "
+                + "VALUES (?, ?, ?, ?)";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, x.getIdAlumno());
+            p.setInt(2, x.getIdCurso());
+            p.setDate(3, java.sql.Date.valueOf(x.getFechaInscripcion()));
+            p.setString(4, x.getEstado());
+
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    public List<Inscripcion> listar() throws SQLException {
+        List<Inscripcion> lista = new ArrayList<>();
+        String sql = "SELECT * FROM inscripciones ORDER BY id_inscripcion";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql);
+             ResultSet r = p.executeQuery()) {
+
+            while (r.next()) {
+                java.sql.Date fecha = r.getDate("fecha_inscripcion");
+
+                lista.add(new Inscripcion(
+                    r.getInt("id_inscripcion"),
+                    r.getInt("id_alumno"),
+                    r.getInt("id_curso"),
+                    fecha == null ? null : fecha.toLocalDate(),
+                    r.getString("estado")
+                ));
+            }
+        }
+
+        return lista;
+    }
+
+    public Inscripcion buscarPorId(int id) throws SQLException {
+        String sql = "SELECT * FROM inscripciones WHERE id_inscripcion = ?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, id);
+
+            try (ResultSet r = p.executeQuery()) {
+                if (!r.next()) {
+                    return null;
+                }
+
+                java.sql.Date fecha = r.getDate("fecha_inscripcion");
+
+                return new Inscripcion(
+                    r.getInt("id_inscripcion"),
+                    r.getInt("id_alumno"),
+                    r.getInt("id_curso"),
+                    fecha == null ? null : fecha.toLocalDate(),
+                    r.getString("estado")
+                );
+            }
+        }
+    }
+
+    public boolean modificar(Inscripcion x) throws SQLException {
+        String sql = "UPDATE inscripciones SET id_alumno=?, id_curso=?, "
+                + "fecha_inscripcion=?, estado=? WHERE id_inscripcion=?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, x.getIdAlumno());
+            p.setInt(2, x.getIdCurso());
+            p.setDate(3, java.sql.Date.valueOf(x.getFechaInscripcion()));
+            p.setString(4, x.getEstado());
+            p.setInt(5, x.getIdInscripcion());
+
+            return p.executeUpdate() > 0;
+        }
+    }
+
+    public boolean eliminar(int id) throws SQLException {
+        String sql = "DELETE FROM inscripciones WHERE id_inscripcion = ?";
+
+        try (Connection c = Conexion.conectar();
+             PreparedStatement p = c.prepareStatement(sql)) {
+
+            p.setInt(1, id);
+            return p.executeUpdate() > 0;
+        }
+    }
+}
+
