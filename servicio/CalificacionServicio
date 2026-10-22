@@ -1,0 +1,58 @@
+package poo.servicio;
+
+import poo.dao.CalificacionDAO;
+import poo.modelo.Calificacion;
+import java.sql.SQLException;
+import java.util.List;
+
+public class CalificacionServicio {
+    private final CalificacionDAO dao = new CalificacionDAO();
+
+    public boolean registrar(Calificacion x) throws SQLException {
+        validar(x);
+        return dao.registrar(x);
+    }
+
+    public List<Calificacion> listar() throws SQLException {
+        return dao.listar();
+    }
+
+    public Calificacion buscarPorId(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.buscarPorId(id);
+    }
+
+    public boolean modificar(Calificacion x) throws SQLException {
+        if (x.getIdCalificacion() <= 0) throw new IllegalArgumentException("ID inválido.");
+        validar(x);
+        return dao.modificar(x);
+    }
+
+    public boolean eliminar(int id) throws SQLException {
+        if (id <= 0) throw new IllegalArgumentException("ID inválido.");
+        return dao.eliminar(id);
+    }
+
+    private void validar(Calificacion x) {
+        if (x == null || x.getIdInscripcion() <= 0
+                || x.getCalificacion() == null
+                || x.getFechaEvaluacion() == null
+                || x.getTipoEvaluacion() == null) {
+            throw new IllegalArgumentException(
+                "Completa inscripción, tipo, calificación y fecha.");
+        }
+
+        if (x.getCalificacion().signum() < 0
+                || x.getCalificacion().compareTo(
+                    java.math.BigDecimal.TEN) > 0) {
+            throw new IllegalArgumentException(
+                "La calificación debe estar entre 0 y 10.");
+        }
+
+        if (!java.util.Arrays.asList("EXAMEN", "PROYECTO", "ACTIVIDAD")
+                .contains(x.getTipoEvaluacion())) {
+            throw new IllegalArgumentException(
+                "Tipo de evaluación no válido.");
+        }
+    }
+}
