@@ -1,0 +1,557 @@
+package poo.interfaz;
+
+import poo.modelo.Alumno;
+import poo.modelo.Calificacion;
+import poo.modelo.ContenidoCurso;
+import poo.modelo.Curso;
+import poo.modelo.Inscripcion;
+import poo.modelo.Pago;
+import poo.modelo.Usuario;
+import poo.servicio.AlumnoServicio;
+import poo.servicio.CalificacionServicio;
+import poo.servicio.ContenidoCursoServicio;
+import poo.servicio.CursoServicio;
+import poo.servicio.InscripcionServicio;
+import poo.servicio.PagoServicio;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.plaf.basic.BasicButtonUI;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+
+public class PanelAlumno extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+
+	private static final Color AZUL_OSCURO = new Color(20, 40, 90);
+
+	private static final DateTimeFormatter FORMATO_FECHA =
+			DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+	private final AlumnoServicio alumnoServicio = new AlumnoServicio();
+	private final InscripcionServicio inscripcionServicio = new InscripcionServicio();
+	private final CursoServicio cursoServicio = new CursoServicio();
+	private final CalificacionServicio calificacionServicio = new CalificacionServicio();
+	private final PagoServicio pagoServicio = new PagoServicio();
+	private final ContenidoCursoServicio contenidoServicio = new ContenidoCursoServicio();
+
+	private Alumno alumno;
+	private final Map<Integer, Inscripcion> inscripciones = new HashMap<>();
+	private final Map<Integer, Curso> cursos = new HashMap<>();
+	private final List<Calificacion> misCalificaciones = new ArrayList<>();
+	private final List<Pago> misPagos = new ArrayList<>();
+	private List<ContenidoCurso> contenidos = new ArrayList<>();
+
+	private JPanel contentPane;
+	private JPanel panelSuperior;
+	private JLabel lblTitulo;
+	private JLabel lblSubtitulo;
+	private JButton btnCerrarSesion;
+
+	private JLabel lblCurso;
+	private JComboBox<Opcion> cmbCurso;
+	private JLabel lblEstadoInscripcion;
+
+	private JPanel panelTarjetaPromedio;
+	private JLabel lblNumPromedio;
+	private JLabel lblTextoPromedio;
+
+	private JPanel panelTarjetaEvaluaciones;
+	private JLabel lblNumEvaluaciones;
+	private JLabel lblTextoEvaluaciones;
+
+	private JPanel panelTarjetaAvance;
+	private JLabel lblNumAvance;
+	private JProgressBar barraAvance;
+	private JLabel lblDetalleAvance;
+	private JLabel lblTextoAvance;
+
+	private JPanel panelTarjetaSaldo;
+	private JLabel lblNumSaldo;
+	private JLabel lblTextoSaldo;
+
+	private JLabel lblTituloCalificaciones;
+	private DefaultTableModel modeloCalificaciones;
+	private JTable tablaCalificaciones;
+	private JScrollPane scrollCalificaciones;
+
+	private JLabel lblTituloPagos;
+	private DefaultTableModel modeloPagos;
+	private JTable tablaPagos;
+	private JScrollPane scrollPagos;
+	private JLabel lblResumenPagos;
+	
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					PanelAlumno frame = new PanelAlumno();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public PanelAlumno() {
+		setTitle("EduControl - Panel del alumno");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setResizable(false);
+
+		contentPane = new JPanel();
+		contentPane.setBackground(new Color(245, 247, 252));
+		contentPane.setPreferredSize(new Dimension(1000, 640));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+
+		panelSuperior = new JPanel();
+		panelSuperior.setBackground(new Color(20, 40, 90));
+		panelSuperior.setBounds(0, 0, 1000, 70);
+		contentPane.add(panelSuperior);
+		panelSuperior.setLayout(null);
+
+		lblTitulo = new JLabel("Mi panel");
+		lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 24));
+		lblTitulo.setForeground(Color.WHITE);
+		lblTitulo.setBounds(25, 8, 700, 34);
+		panelSuperior.add(lblTitulo);
+
+		lblSubtitulo = new JLabel("Consulta tus calificaciones, avance y pagos");
+		lblSubtitulo.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblSubtitulo.setForeground(new Color(190, 205, 235));
+		lblSubtitulo.setBounds(25, 42, 780, 20);
+		panelSuperior.add(lblSubtitulo);
+
+		btnCerrarSesion = new JButton("Cerrar sesión");
+		btnCerrarSesion.setUI(new BasicButtonUI());
+		btnCerrarSesion.setFont(new Font("SansSerif", Font.BOLD, 14));
+		btnCerrarSesion.setForeground(Color.WHITE);
+		btnCerrarSesion.setBackground(new Color(185, 55, 55));
+		btnCerrarSesion.setOpaque(true);
+		btnCerrarSesion.setContentAreaFilled(true);
+		btnCerrarSesion.setBorderPainted(false);
+		btnCerrarSesion.setFocusPainted(false);
+		btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnCerrarSesion.setBounds(835, 17, 140, 36);
+		panelSuperior.add(btnCerrarSesion);
+
+		lblCurso = new JLabel("Mi curso:");
+		lblCurso.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblCurso.setForeground(new Color(20, 40, 90));
+		lblCurso.setBounds(20, 92, 80, 24);
+		contentPane.add(lblCurso);
+
+		cmbCurso = new JComboBox<Opcion>();
+		cmbCurso.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		cmbCurso.setBackground(Color.WHITE);
+		cmbCurso.setBounds(100, 87, 420, 34);
+		contentPane.add(cmbCurso);
+
+		lblEstadoInscripcion = new JLabel("");
+		lblEstadoInscripcion.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblEstadoInscripcion.setForeground(new Color(100, 116, 139));
+		lblEstadoInscripcion.setBounds(540, 92, 440, 24);
+		contentPane.add(lblEstadoInscripcion);
+
+		panelTarjetaPromedio = new JPanel();
+		panelTarjetaPromedio.setBackground(Color.WHITE);
+		panelTarjetaPromedio.setBorder(new LineBorder(new Color(203, 216, 237), 1));
+		panelTarjetaPromedio.setBounds(20, 135, 200, 85);
+		contentPane.add(panelTarjetaPromedio);
+		panelTarjetaPromedio.setLayout(null);
+
+		lblNumPromedio = new JLabel("-");
+		lblNumPromedio.setFont(new Font("SansSerif", Font.BOLD, 32));
+		lblNumPromedio.setForeground(new Color(37, 99, 235));
+		lblNumPromedio.setBounds(20, 8, 160, 42);
+		panelTarjetaPromedio.add(lblNumPromedio);
+
+		lblTextoPromedio = new JLabel("Promedio general");
+		lblTextoPromedio.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblTextoPromedio.setForeground(new Color(100, 116, 139));
+		lblTextoPromedio.setBounds(20, 54, 170, 20);
+		panelTarjetaPromedio.add(lblTextoPromedio);
+
+		panelTarjetaEvaluaciones = new JPanel();
+		panelTarjetaEvaluaciones.setBackground(Color.WHITE);
+		panelTarjetaEvaluaciones.setBorder(new LineBorder(new Color(203, 216, 237), 1));
+		panelTarjetaEvaluaciones.setBounds(232, 135, 200, 85);
+		contentPane.add(panelTarjetaEvaluaciones);
+		panelTarjetaEvaluaciones.setLayout(null);
+
+		lblNumEvaluaciones = new JLabel("0");
+		lblNumEvaluaciones.setFont(new Font("SansSerif", Font.BOLD, 32));
+		lblNumEvaluaciones.setForeground(new Color(37, 99, 235));
+		lblNumEvaluaciones.setBounds(20, 8, 160, 42);
+		panelTarjetaEvaluaciones.add(lblNumEvaluaciones);
+
+		lblTextoEvaluaciones = new JLabel("Evaluaciones realizadas");
+		lblTextoEvaluaciones.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblTextoEvaluaciones.setForeground(new Color(100, 116, 139));
+		lblTextoEvaluaciones.setBounds(20, 54, 170, 20);
+		panelTarjetaEvaluaciones.add(lblTextoEvaluaciones);
+
+		panelTarjetaAvance = new JPanel();
+		panelTarjetaAvance.setBackground(Color.WHITE);
+		panelTarjetaAvance.setBorder(new LineBorder(new Color(203, 216, 237), 1));
+		panelTarjetaAvance.setBounds(444, 135, 330, 85);
+		contentPane.add(panelTarjetaAvance);
+		panelTarjetaAvance.setLayout(null);
+
+		lblNumAvance = new JLabel("0%");
+		lblNumAvance.setFont(new Font("SansSerif", Font.BOLD, 32));
+		lblNumAvance.setForeground(new Color(22, 138, 85));
+		lblNumAvance.setBounds(20, 8, 110, 42);
+		panelTarjetaAvance.add(lblNumAvance);
+
+		barraAvance = new JProgressBar(0, 100);
+		barraAvance.setForeground(new Color(22, 138, 85));
+		barraAvance.setBackground(new Color(226, 234, 246));
+		barraAvance.setBorderPainted(false);
+		barraAvance.setBounds(135, 20, 175, 14);
+		panelTarjetaAvance.add(barraAvance);
+
+		lblDetalleAvance = new JLabel("");
+		lblDetalleAvance.setFont(new Font("SansSerif", Font.PLAIN, 11));
+		lblDetalleAvance.setForeground(new Color(100, 116, 139));
+		lblDetalleAvance.setBounds(135, 38, 185, 16);
+		panelTarjetaAvance.add(lblDetalleAvance);
+
+		lblTextoAvance = new JLabel("Avance del curso");
+		lblTextoAvance.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblTextoAvance.setForeground(new Color(100, 116, 139));
+		lblTextoAvance.setBounds(20, 54, 170, 20);
+		panelTarjetaAvance.add(lblTextoAvance);
+
+		panelTarjetaSaldo = new JPanel();
+		panelTarjetaSaldo.setBackground(Color.WHITE);
+		panelTarjetaSaldo.setBorder(new LineBorder(new Color(203, 216, 237), 1));
+		panelTarjetaSaldo.setBounds(786, 135, 194, 85);
+		contentPane.add(panelTarjetaSaldo);
+		panelTarjetaSaldo.setLayout(null);
+
+		lblNumSaldo = new JLabel("$0.00");
+		lblNumSaldo.setFont(new Font("SansSerif", Font.BOLD, 26));
+		lblNumSaldo.setForeground(new Color(185, 55, 55));
+		lblNumSaldo.setBounds(20, 10, 165, 38);
+		panelTarjetaSaldo.add(lblNumSaldo);
+
+		lblTextoSaldo = new JLabel("Saldo pendiente");
+		lblTextoSaldo.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblTextoSaldo.setForeground(new Color(100, 116, 139));
+		lblTextoSaldo.setBounds(20, 54, 160, 20);
+		panelTarjetaSaldo.add(lblTextoSaldo);
+
+		lblTituloCalificaciones = new JLabel("Mis calificaciones");
+		lblTituloCalificaciones.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblTituloCalificaciones.setForeground(new Color(20, 40, 90));
+		lblTituloCalificaciones.setBounds(20, 235, 300, 24);
+		contentPane.add(lblTituloCalificaciones);
+
+		modeloCalificaciones = new ModeloLectura("Tipo", "Calificación", "Fecha", "Observaciones");
+		tablaCalificaciones = new JTable(modeloCalificaciones);
+		estilizarTabla(tablaCalificaciones);
+		tablaCalificaciones.getColumnModel().getColumn(0).setPreferredWidth(100);
+		tablaCalificaciones.getColumnModel().getColumn(1).setPreferredWidth(95);
+		tablaCalificaciones.getColumnModel().getColumn(2).setPreferredWidth(95);
+		tablaCalificaciones.getColumnModel().getColumn(3).setPreferredWidth(300);
+
+		scrollCalificaciones = new JScrollPane(tablaCalificaciones);
+		scrollCalificaciones.setBorder(new LineBorder(new Color(203, 216, 237)));
+		scrollCalificaciones.getViewport().setBackground(Color.WHITE);
+		scrollCalificaciones.setBounds(20, 262, 590, 320);
+		contentPane.add(scrollCalificaciones);
+
+		lblTituloPagos = new JLabel("Mis pagos");
+		lblTituloPagos.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblTituloPagos.setForeground(new Color(20, 40, 90));
+		lblTituloPagos.setBounds(630, 235, 300, 24);
+		contentPane.add(lblTituloPagos);
+
+		modeloPagos = new ModeloLectura("Fecha", "Monto", "Método", "Estado");
+		tablaPagos = new JTable(modeloPagos);
+		estilizarTabla(tablaPagos);
+		tablaPagos.getColumnModel().getColumn(0).setPreferredWidth(85);
+		tablaPagos.getColumnModel().getColumn(1).setPreferredWidth(85);
+		tablaPagos.getColumnModel().getColumn(2).setPreferredWidth(110);
+		tablaPagos.getColumnModel().getColumn(3).setPreferredWidth(80);
+
+		scrollPagos = new JScrollPane(tablaPagos);
+		scrollPagos.setBorder(new LineBorder(new Color(203, 216, 237)));
+		scrollPagos.getViewport().setBackground(Color.WHITE);
+		scrollPagos.setBounds(630, 262, 350, 270);
+		contentPane.add(scrollPagos);
+
+		lblResumenPagos = new JLabel("");
+		lblResumenPagos.setFont(new Font("SansSerif", Font.BOLD, 13));
+		lblResumenPagos.setForeground(new Color(20, 40, 90));
+		lblResumenPagos.setBounds(630, 538, 350, 44);
+		contentPane.add(lblResumenPagos);
+
+		btnCerrarSesion.addActionListener(e -> cerrarSesion());
+		cmbCurso.addActionListener(e -> actualizarVista());
+
+		pack();
+		setLocationRelativeTo(null);
+	}
+
+	public void cargarDatos(Usuario usuario) {
+		lblSubtitulo.setText("Hola, " + usuario.getNombre());
+
+		try {
+			alumno = alumnoServicio.buscarPorUsuario(usuario.getIdUsuario());
+
+			if (alumno == null) {
+				lblSubtitulo.setText("Tu cuenta aún no está vinculada a un expediente de alumno. "
+						+ "Pide al administrador que te cree el acceso.");
+				cmbCurso.setEnabled(false);
+				return;
+			}
+
+			for (Curso c : cursoServicio.listar()) {
+				cursos.put(c.getIdCurso(), c);
+			}
+
+			List<Inscripcion> mias = new ArrayList<>();
+			for (Inscripcion i : inscripcionServicio.listar()) {
+				if (i.getIdAlumno() == alumno.getIdAlumno()) {
+					inscripciones.put(i.getIdInscripcion(), i);
+					mias.add(i);
+				}
+			}
+
+			misCalificaciones.clear();
+			for (Calificacion c : calificacionServicio.listar()) {
+				if (inscripciones.containsKey(c.getIdInscripcion())) {
+					misCalificaciones.add(c);
+				}
+			}
+
+			misPagos.clear();
+			for (Pago p : pagoServicio.listar()) {
+				if (inscripciones.containsKey(p.getIdInscripcion())) {
+					misPagos.add(p);
+				}
+			}
+
+			contenidos = contenidoServicio.listar();
+
+			lblSubtitulo.setText("Hola, " + alumno.getNombre() + " " + alumno.getApellidos());
+
+			cmbCurso.removeAllItems();
+			for (Inscripcion i : mias) {
+				Curso curso = cursos.get(i.getIdCurso());
+				String nombre = curso == null ? "Curso #" + i.getIdCurso() : curso.getNombre();
+				cmbCurso.addItem(new Opcion(i.getIdInscripcion(), nombre));
+			}
+
+			if (mias.isEmpty()) {
+				lblEstadoInscripcion.setText("Todavía no estás inscrito en ningún curso.");
+			}
+
+		} catch (SQLException ex) {
+			JOptionPane.showMessageDialog(this,
+					"No se pudo cargar tu información.\n" + ex.getMessage(),
+					"Error de base de datos", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void actualizarVista() {
+		modeloCalificaciones.setRowCount(0);
+		modeloPagos.setRowCount(0);
+
+		Opcion elegido = (Opcion) cmbCurso.getSelectedItem();
+		Inscripcion inscripcion = elegido == null ? null : inscripciones.get(elegido.id);
+
+		if (inscripcion == null) {
+			lblNumPromedio.setText("-");
+			lblNumEvaluaciones.setText("0");
+			lblNumAvance.setText("0%");
+			barraAvance.setValue(0);
+			lblDetalleAvance.setText("");
+			lblNumSaldo.setText("$0.00");
+			lblResumenPagos.setText("");
+			return;
+		}
+
+		lblEstadoInscripcion.setText("Estado de tu inscripción: " + inscripcion.getEstado());
+
+		BigDecimal suma = BigDecimal.ZERO;
+		int evaluaciones = 0;
+		for (Calificacion c : misCalificaciones) {
+			if (c.getIdInscripcion() == inscripcion.getIdInscripcion()) {
+				suma = suma.add(c.getCalificacion());
+				evaluaciones++;
+				modeloCalificaciones.addRow(new Object[] {
+						c.getTipoEvaluacion(),
+						c.getCalificacion().setScale(2, RoundingMode.HALF_UP).toPlainString(),
+						c.getFechaEvaluacion().format(FORMATO_FECHA),
+						c.getObservaciones() == null ? "" : c.getObservaciones()
+				});
+			}
+		}
+
+		if (evaluaciones == 0) {
+			lblNumPromedio.setText("-");
+		} else {
+			lblNumPromedio.setText(suma.divide(BigDecimal.valueOf(evaluaciones), 2,
+					RoundingMode.HALF_UP).toPlainString());
+		}
+		lblNumEvaluaciones.setText(String.valueOf(evaluaciones));
+
+		int temas = 0;
+		for (ContenidoCurso c : contenidos) {
+			if (c.getIdCurso() == inscripcion.getIdCurso()) {
+				temas++;
+			}
+		}
+
+		int avance = temas == 0 ? 0 : Math.min(100, evaluaciones * 100 / temas);
+		barraAvance.setValue(avance);
+		lblNumAvance.setText(avance + "%");
+		lblDetalleAvance.setText(temas == 0 ? "El curso aún no tiene temas"
+				: evaluaciones + " evaluaciones de " + temas + " temas");
+
+		BigDecimal pagado = BigDecimal.ZERO;
+		for (Pago p : misPagos) {
+			if (p.getIdInscripcion() == inscripcion.getIdInscripcion()) {
+				modeloPagos.addRow(new Object[] {
+						p.getFechaPago().format(FORMATO_FECHA),
+						dinero(p.getMonto()),
+						p.getMetodoPago(),
+						p.getEstado()
+				});
+				if ("PAGADO".equals(p.getEstado())) {
+					pagado = pagado.add(p.getMonto());
+				}
+			}
+		}
+
+		Curso curso = cursos.get(inscripcion.getIdCurso());
+		BigDecimal costo = curso == null ? BigDecimal.ZERO : curso.getPrecio();
+		BigDecimal saldo = costo.subtract(pagado);
+		if (saldo.signum() < 0) {
+			saldo = BigDecimal.ZERO;
+		}
+
+		lblNumSaldo.setText(dinero(saldo));
+		lblResumenPagos.setText("<html>Costo del curso: " + dinero(costo)
+				+ "<br>Total pagado: " + dinero(pagado) + "</html>");
+	}
+
+	private String dinero(BigDecimal valor) {
+		return "$" + String.format(Locale.US, "%,.2f", valor);
+	}
+
+	private void estilizarTabla(JTable tabla) {
+		tabla.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		tabla.setRowHeight(26);
+		tabla.setForeground(AZUL_OSCURO);
+		tabla.setGridColor(new Color(225, 232, 243));
+		tabla.setSelectionBackground(new Color(219, 234, 254));
+		tabla.setSelectionForeground(AZUL_OSCURO);
+		tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tabla.getTableHeader().setReorderingAllowed(false);
+		tabla.getTableHeader().setPreferredSize(new Dimension(100, 30));
+
+		EncabezadoTabla encabezado = new EncabezadoTabla();
+		for (int i = 0; i < tabla.getColumnCount(); i++) {
+			tabla.getColumnModel().getColumn(i).setHeaderRenderer(encabezado);
+		}
+	}
+
+	private void cerrarSesion() {
+		int opcion = JOptionPane.showConfirmDialog(
+				this, "¿Deseas cerrar la sesión?", "Cerrar sesión",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
+
+		if (opcion == JOptionPane.YES_OPTION) {
+			Login login = new Login();
+			login.setLocationRelativeTo(null);
+			login.setVisible(true);
+			dispose();
+		}
+	}
+
+	private static class Opcion {
+		final int id;
+		final String texto;
+
+		Opcion(int id, String texto) {
+			this.id = id;
+			this.texto = texto;
+		}
+
+		@Override
+		public String toString() {
+			return texto;
+		}
+	}
+
+	private static class ModeloLectura extends DefaultTableModel {
+		private static final long serialVersionUID = 1L;
+
+		ModeloLectura(String... columnas) {
+			super(columnas, 0);
+		}
+
+		@Override
+		public boolean isCellEditable(int fila, int columna) {
+			return false;
+		}
+	}
+
+	private static class EncabezadoTabla extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public Component getTableCellRendererComponent(JTable tabla, Object valor,
+				boolean seleccionado, boolean foco, int fila, int columna) {
+			JLabel l = (JLabel) super.getTableCellRendererComponent(
+					tabla, valor, seleccionado, foco, fila, columna);
+			l.setOpaque(true);
+			l.setBackground(AZUL_OSCURO);
+			l.setForeground(Color.WHITE);
+			l.setFont(new Font("SansSerif", Font.BOLD, 13));
+			l.setHorizontalAlignment(SwingConstants.LEFT);
+			l.setBorder(new EmptyBorder(0, 8, 0, 8));
+			return l;
+		}
+	}
+}
