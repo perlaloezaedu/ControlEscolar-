@@ -1,0 +1,107 @@
+package poo.modelo;
+
+import java.time.LocalDate;
+
+public class Alumno {
+
+    private int idAlumno;
+    private String nombre;
+    private String apellidos;
+    private String telefono;
+    private String correo;
+    private String direccion;
+    private LocalDate fechaNacimiento;
+    private String estado;
+    private Integer idUsuario;
+
+    public Alumno() {
+    }
+
+    public Alumno(int idAlumno, String nombre, String apellidos,
+                  String telefono, String correo, String direccion,
+                  LocalDate fechaNacimiento, String estado,
+                  Integer idUsuario) {
+        this.idAlumno = idAlumno;
+        this.nombre = nombre;
+        this.apellidos = apellidos;
+        this.telefono = telefono;
+        this.correo = correo;
+        this.direccion = direccion;
+        this.fechaNacimiento = fechaNacimiento;
+        this.estado = estado;
+        this.idUsuario = idUsuario;
+    }
+
+    public int getIdAlumno() {
+        return idAlumno;
+    }
+
+    public void setIdAlumno(int idAlumno) {
+        this.idAlumno = idAlumno;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getApellidos() {
+        return apellidos;
+    }
+
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public Integer getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+}
+
