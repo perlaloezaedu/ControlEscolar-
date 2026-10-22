@@ -1,0 +1,705 @@
+package poo.interfaz;
+ 
+import poo.modelo.Alumno;
+import poo.servicio.AlumnoServicio;
+import poo.servicio.UsuarioServicio;
+ 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.plaf.basic.BasicButtonUI;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+ 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+ 
+public class GestionAlumnos extends JFrame {
+ 
+	private static final long serialVersionUID = 1L;
+ 
+	private static final Color AZUL = new Color(37, 99, 235);
+	private static final Color AZUL_OSCURO = new Color(20, 40, 90);
+	private static final Color GRIS = new Color(100, 116, 139);
+	private static final Color FONDO = new Color(245, 247, 252);
+	private static final Color BORDE = new Color(203, 216, 237);
+	private static final Color ROJO = new Color(185, 55, 55);
+	private static final Color CLARO = new Color(239, 244, 251);
+ 
+	private static final DateTimeFormatter FORMATO_FECHA =
+			DateTimeFormatter.ofPattern("dd/MM/uuuu")
+					.withResolverStyle(ResolverStyle.STRICT);
+	
+	private final AlumnoServicio servicio = new AlumnoServicio();
+	private final UsuarioServicio usuarioServicio = new UsuarioServicio();
+	private List<Alumno> listaAlumnos = new ArrayList<>();
+	private Integer idUsuarioSeleccionado = null;
+ 
+	private JPanel contentPane;
+	private JTextField txtId;
+	private JTextField txtNombre;
+	private JTextField txtApellidos;
+	private JTextField txtTelefono;
+	private JTextField txtCorreo;
+	private JTextField txtDireccion;
+	private JTextField txtFecha;
+	private JComboBox<String> cmbEstado;
+	private JTextField txtBuscar;
+	private JTable tabla;
+	private DefaultTableModel modeloTabla;
+	private TableRowSorter<DefaultTableModel> sorter;
+	private JLabel lblTotal;
+ 
+	private JButton btnRegistrar;
+	private JButton btnModificar;
+	private JButton btnEliminar;
+	private JButton btnLimpiar;
+	private JButton btnCrearAcceso;
+	private JButton btnVolver;
+ 
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					GestionAlumnos frame = new GestionAlumnos();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+ 
+	/**
+	 * Create the frame.
+	 */
+	public GestionAlumnos() {
+		setTitle("Gestión de alumnos - EduControl");
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setResizable(false);
+ 
+		contentPane = new JPanel();
+		contentPane.setBackground(FONDO);
+		contentPane.setLayout(null);
+		contentPane.setPreferredSize(new Dimension(1000, 640));
+		setContentPane(contentPane);
+ 
+		crearPanelSuperior();
+		crearFormulario();
+		crearBotones();
+		crearTabla();
+		crearEventos();
+ 
+		pack();
+		setLocationRelativeTo(null);
+ 
+		cargarTabla();
+	}
+ 
+	private void crearPanelSuperior() {
+		JPanel panelSuperior = new JPanel();
+		panelSuperior.setBackground(AZUL_OSCURO);
+		panelSuperior.setBounds(0, 0, 1000, 70);
+		panelSuperior.setLayout(null);
+		contentPane.add(panelSuperior);
+ 
+		JLabel lblTitulo = new JLabel("Gestión de alumnos");
+		lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 24));
+		lblTitulo.setForeground(Color.WHITE);
+		lblTitulo.setBounds(25, 8, 500, 34);
+		panelSuperior.add(lblTitulo);
+ 
+		JLabel lblSubtitulo = new JLabel("Administración de expedientes");
+		lblSubtitulo.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblSubtitulo.setForeground(new Color(190, 205, 235));
+		lblSubtitulo.setBounds(25, 42, 500, 20);
+		panelSuperior.add(lblSubtitulo);
+ 
+		btnVolver = new JButton("Volver al menú");
+		estilizarBoton(btnVolver, CLARO, AZUL_OSCURO);
+		btnVolver.setBounds(835, 17, 140, 36);
+		panelSuperior.add(btnVolver);
+	}
+ 
+	private void crearFormulario() {
+		JPanel panelFormulario = new JPanel();
+		panelFormulario.setBackground(Color.WHITE);
+		panelFormulario.setBorder(new LineBorder(new Color(220, 230, 243), 2));
+		panelFormulario.setBounds(20, 85, 960, 245);
+		panelFormulario.setLayout(null);
+		contentPane.add(panelFormulario);
+ 
+		JLabel lblDatos = new JLabel("Datos del alumno");
+		lblDatos.setFont(new Font("SansSerif", Font.BOLD, 16));
+		lblDatos.setForeground(AZUL_OSCURO);
+		lblDatos.setBounds(20, 8, 300, 26);
+		panelFormulario.add(lblDatos);
+ 
+		agregarEtiqueta(panelFormulario, "Nombre(s) *", 20, 40);
+		txtNombre = agregarCampo(panelFormulario, 20, 62, 280);
+ 
+		agregarEtiqueta(panelFormulario, "Apellidos *", 340, 40);
+		txtApellidos = agregarCampo(panelFormulario, 340, 62, 280);
+ 
+		agregarEtiqueta(panelFormulario, "Teléfono", 660, 40);
+		txtTelefono = agregarCampo(panelFormulario, 660, 62, 280);
+ 
+		agregarEtiqueta(panelFormulario, "Correo electrónico *", 20, 105);
+		txtCorreo = agregarCampo(panelFormulario, 20, 127, 280);
+ 
+		agregarEtiqueta(panelFormulario, "Dirección", 340, 105);
+		txtDireccion = agregarCampo(panelFormulario, 340, 127, 280);
+ 
+		agregarEtiqueta(panelFormulario, "Fecha de nacimiento * (dd/mm/aaaa)", 660, 105);
+		txtFecha = agregarCampo(panelFormulario, 660, 127, 280);
+ 
+		agregarEtiqueta(panelFormulario, "ID del alumno", 20, 170);
+		txtId = agregarCampo(panelFormulario, 20, 192, 280);
+		txtId.setEditable(false);
+		txtId.setBackground(new Color(240, 243, 248));
+ 
+		agregarEtiqueta(panelFormulario, "Estado", 340, 170);
+		cmbEstado = new JComboBox<String>(new String[] { "ACTIVO", "INACTIVO" });
+		cmbEstado.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		cmbEstado.setBackground(Color.WHITE);
+		cmbEstado.setBounds(340, 192, 280, 32);
+		panelFormulario.add(cmbEstado);
+	}
+ 
+	private void crearBotones() {
+		btnRegistrar = new JButton("Registrar");
+		estilizarBoton(btnRegistrar, AZUL, Color.WHITE);
+		btnRegistrar.setBounds(20, 345, 120, 38);
+		contentPane.add(btnRegistrar);
+ 
+		btnModificar = new JButton("Modificar");
+		estilizarBoton(btnModificar, AZUL_OSCURO, Color.WHITE);
+		btnModificar.setBounds(152, 345, 120, 38);
+		contentPane.add(btnModificar);
+ 
+		btnEliminar = new JButton("Eliminar");
+		estilizarBoton(btnEliminar, ROJO, Color.WHITE);
+		btnEliminar.setBounds(284, 345, 120, 38);
+		contentPane.add(btnEliminar);
+ 
+		btnLimpiar = new JButton("Limpiar");
+		estilizarBoton(btnLimpiar, CLARO, AZUL_OSCURO);
+		btnLimpiar.setBorder(new LineBorder(BORDE));
+		btnLimpiar.setBorderPainted(true);
+		btnLimpiar.setBounds(416, 345, 120, 38);
+		contentPane.add(btnLimpiar);
+ 
+		btnCrearAcceso = new JButton("Crear acceso");
+		estilizarBoton(btnCrearAcceso, new Color(22, 138, 85), Color.WHITE);
+		btnCrearAcceso.setToolTipText("Crea la cuenta para que el alumno pueda entrar al sistema");
+		btnCrearAcceso.setBounds(548, 345, 140, 38);
+		contentPane.add(btnCrearAcceso);
+
+		JLabel lblBuscar = new JLabel("Buscar:");
+		lblBuscar.setFont(new Font("SansSerif", Font.BOLD, 14));
+		lblBuscar.setForeground(AZUL_OSCURO);
+		lblBuscar.setBounds(700, 352, 55, 24);
+		contentPane.add(lblBuscar);
+ 
+		txtBuscar = new JTextField();
+		estilizarCampo(txtBuscar);
+		txtBuscar.setToolTipText("Filtra la tabla por nombre, apellidos, correo, etc.");
+		txtBuscar.setBounds(755, 347, 225, 34);
+		contentPane.add(txtBuscar);
+	}
+ 
+	private void crearTabla() {
+		String[] columnas = { "ID", "Nombre", "Apellidos", "Teléfono",
+				"Correo", "Dirección", "Fecha nac.", "Estado", "Acceso" };
+ 
+		modeloTabla = new DefaultTableModel(columnas, 0) {
+			private static final long serialVersionUID = 1L;
+ 
+			@Override
+			public boolean isCellEditable(int fila, int columna) {
+				return false;
+			}
+ 
+			@Override
+			public Class<?> getColumnClass(int columna) {
+				return columna == 0 ? Integer.class : String.class;
+			}
+		};
+ 
+		tabla = new JTable(modeloTabla);
+		tabla.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		tabla.setRowHeight(26);
+		tabla.setForeground(AZUL_OSCURO);
+		tabla.setGridColor(new Color(225, 232, 243));
+		tabla.setSelectionBackground(new Color(219, 234, 254));
+		tabla.setSelectionForeground(AZUL_OSCURO);
+		tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tabla.getTableHeader().setReorderingAllowed(false);
+ 
+		sorter = new TableRowSorter<DefaultTableModel>(modeloTabla);
+		tabla.setRowSorter(sorter);
+ 
+		DefaultTableCellRenderer encabezado = new DefaultTableCellRenderer() {
+			private static final long serialVersionUID = 1L;
+ 
+			@Override
+			public Component getTableCellRendererComponent(JTable t, Object valor,
+					boolean seleccionado, boolean foco, int fila, int columna) {
+				JLabel l = (JLabel) super.getTableCellRendererComponent(
+						t, valor, seleccionado, foco, fila, columna);
+				l.setOpaque(true);
+				l.setBackground(AZUL_OSCURO);
+				l.setForeground(Color.WHITE);
+				l.setFont(new Font("SansSerif", Font.BOLD, 13));
+				l.setHorizontalAlignment(SwingConstants.LEFT);
+				l.setBorder(new EmptyBorder(0, 8, 0, 8));
+				return l;
+			}
+		};
+ 
+		int[] anchos = { 50, 100, 120, 95, 190, 170, 90, 75, 70 };
+		for (int i = 0; i < anchos.length; i++) {
+			tabla.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+			tabla.getColumnModel().getColumn(i).setHeaderRenderer(encabezado);
+		}
+		tabla.getTableHeader().setPreferredSize(new Dimension(100, 30));
+ 
+		JScrollPane scroll = new JScrollPane(tabla);
+		scroll.setBorder(new LineBorder(BORDE));
+		scroll.getViewport().setBackground(Color.WHITE);
+		scroll.setBounds(20, 400, 960, 200);
+		contentPane.add(scroll);
+ 
+		lblTotal = new JLabel("Total de alumnos: 0");
+		lblTotal.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblTotal.setForeground(GRIS);
+		lblTotal.setBounds(20, 607, 400, 22);
+		contentPane.add(lblTotal);
+	}
+ 
+	private void crearEventos() {
+		btnRegistrar.addActionListener(e -> registrar());
+		btnModificar.addActionListener(e -> modificar());
+		btnEliminar.addActionListener(e -> eliminar());
+		btnLimpiar.addActionListener(e -> limpiar());
+		btnCrearAcceso.addActionListener(e -> crearAcceso());
+		btnVolver.addActionListener(e -> dispose());
+ 
+		tabla.getSelectionModel().addListSelectionListener(e -> {
+			if (!e.getValueIsAdjusting()) {
+				seleccionarFila();
+			}
+		});
+ 
+		txtBuscar.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				filtrar();
+			}
+ 
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				filtrar();
+			}
+ 
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				filtrar();
+			}
+		});
+	}
+ 
+	private void cargarTabla() {
+		try {
+			listaAlumnos = servicio.listar();
+			modeloTabla.setRowCount(0);
+ 
+			for (Alumno a : listaAlumnos) {
+				modeloTabla.addRow(new Object[] {
+						a.getIdAlumno(),
+						a.getNombre(),
+						a.getApellidos(),
+						a.getTelefono(),
+						a.getCorreo(),
+						a.getDireccion(),
+						a.getFechaNacimiento() == null ? ""
+								: a.getFechaNacimiento().format(FORMATO_FECHA),
+						a.getEstado(),
+						a.getIdUsuario() == null ? "No" : "Sí"
+				});
+			}
+			lblTotal.setText("Total de alumnos: " + listaAlumnos.size());
+ 
+		} catch (SQLException ex) {
+			mostrarErrorBD("No se pudo cargar la lista de alumnos.", ex);
+		}
+	}
+ 
+	private void registrar() {
+		if (!txtId.getText().isEmpty()) {
+			aviso("Estás viendo un alumno ya registrado.\n"
+					+ "Presiona \"Limpiar\" para capturar uno nuevo.");
+			return;
+		}
+ 
+		try {
+			Alumno alumno = leerFormulario();
+ 
+			if (servicio.registrar(alumno)) {
+				info("Alumno registrado correctamente.");
+				limpiar();
+				cargarTabla();
+			}
+ 
+		} catch (IllegalArgumentException ex) {
+			aviso(ex.getMessage());
+		} catch (SQLException ex) {
+			if (ex.getErrorCode() == 1062) {
+				aviso("Ya existe un alumno registrado con ese correo electrónico.");
+			} else {
+				mostrarErrorBD("No se pudo registrar el alumno.", ex);
+			}
+		}
+	}
+ 
+	private void modificar() {
+		if (txtId.getText().isEmpty()) {
+			aviso("Selecciona un alumno de la tabla para modificarlo.");
+			return;
+		}
+ 
+		try {
+			Alumno alumno = leerFormulario();
+ 
+			if (servicio.modificar(alumno)) {
+				info("Alumno modificado correctamente.");
+				limpiar();
+				cargarTabla();
+			}
+ 
+		} catch (IllegalArgumentException ex) {
+			aviso(ex.getMessage());
+		} catch (SQLException ex) {
+			if (ex.getErrorCode() == 1062) {
+				aviso("Ese correo electrónico ya pertenece a otro alumno.");
+			} else {
+				mostrarErrorBD("No se pudo modificar el alumno.", ex);
+			}
+		}
+	}
+ 
+	private void eliminar() {
+		if (txtId.getText().isEmpty()) {
+			aviso("Selecciona un alumno de la tabla para eliminarlo.");
+			return;
+		}
+ 
+		int id = Integer.parseInt(txtId.getText());
+		String nombre = txtNombre.getText() + " " + txtApellidos.getText();
+ 
+		int opcion = JOptionPane.showConfirmDialog(this,
+				"¿Seguro que deseas eliminar a " + nombre + "?",
+				"Confirmar eliminación",
+				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+ 
+		if (opcion != JOptionPane.YES_OPTION) {
+			return;
+		}
+ 
+		try {
+			if (servicio.eliminar(id)) {
+				info("Alumno eliminado correctamente.");
+				limpiar();
+				cargarTabla();
+			}
+ 
+		} catch (SQLException ex) {
+			if (esLlaveForanea(ex)) {
+				ofrecerDarDeBaja(id);
+			} else {
+				mostrarErrorBD("No se pudo eliminar el alumno.", ex);
+			}
+		}
+	}
+ 
+	private void ofrecerDarDeBaja(int id) {
+		int opcion = JOptionPane.showConfirmDialog(this,
+				"Este alumno tiene inscripciones registradas, por lo que no se puede eliminar.\n"
+						+ "¿Deseas darlo de baja (estado INACTIVO) para conservar su historial?",
+				"No se puede eliminar", JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
+ 
+		if (opcion != JOptionPane.YES_OPTION) {
+			return;
+		}
+ 
+		try {
+			Alumno alumno = servicio.buscarPorId(id);
+			if (alumno != null) {
+				alumno.setEstado("INACTIVO");
+				servicio.modificar(alumno);
+				info("El alumno fue dado de baja (INACTIVO).");
+				limpiar();
+				cargarTabla();
+			}
+		} catch (SQLException ex) {
+			mostrarErrorBD("No se pudo dar de baja al alumno.", ex);
+		}
+	}
+ 
+	private Alumno leerFormulario() {
+		String nombre = txtNombre.getText().trim();
+		String apellidos = txtApellidos.getText().trim();
+		String telefono = txtTelefono.getText().trim();
+		String correo = txtCorreo.getText().trim();
+		String direccion = txtDireccion.getText().trim();
+		String fechaTexto = txtFecha.getText().trim();
+ 
+		if (nombre.isEmpty() || apellidos.isEmpty()
+				|| correo.isEmpty() || fechaTexto.isEmpty()) {
+			throw new IllegalArgumentException(
+					"Nombre, apellidos, correo y fecha de nacimiento son obligatorios.");
+		}
+		if (nombre.length() > 50) {
+			throw new IllegalArgumentException("El nombre no puede pasar de 50 caracteres.");
+		}
+		if (apellidos.length() > 100) {
+			throw new IllegalArgumentException("Los apellidos no pueden pasar de 100 caracteres.");
+		}
+		if (correo.length() > 100
+				|| !correo.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+			throw new IllegalArgumentException("Ingresa un correo electrónico válido.");
+		}
+		if (!telefono.isEmpty() && !telefono.matches("\\d{7,15}")) {
+			throw new IllegalArgumentException(
+					"El teléfono debe contener solo números (de 7 a 15 dígitos).");
+		}
+		if (direccion.length() > 200) {
+			throw new IllegalArgumentException("La dirección no puede pasar de 200 caracteres.");
+		}
+ 
+		LocalDate fecha;
+		try {
+			fecha = LocalDate.parse(fechaTexto, FORMATO_FECHA);
+		} catch (DateTimeParseException ex) {
+			throw new IllegalArgumentException(
+					"Fecha inválida. Usa el formato dd/mm/aaaa (ejemplo: 25/03/2005).");
+		}
+		if (fecha.isAfter(LocalDate.now())) {
+			throw new IllegalArgumentException("La fecha de nacimiento no puede ser futura.");
+		}
+ 
+		Alumno a = new Alumno();
+		if (!txtId.getText().isEmpty()) {
+			a.setIdAlumno(Integer.parseInt(txtId.getText()));
+		}
+		a.setNombre(nombre);
+		a.setApellidos(apellidos);
+		a.setTelefono(telefono.isEmpty() ? null : telefono);
+		a.setCorreo(correo);
+		a.setDireccion(direccion.isEmpty() ? null : direccion);
+		a.setFechaNacimiento(fecha);
+		a.setEstado((String) cmbEstado.getSelectedItem());
+		a.setIdUsuario(idUsuarioSeleccionado); 
+		return a;
+	}
+ 
+	private void seleccionarFila() {
+		int filaVista = tabla.getSelectedRow();
+		if (filaVista == -1) {
+			return;
+		}
+ 
+		int filaModelo = tabla.convertRowIndexToModel(filaVista);
+		int id = (Integer) modeloTabla.getValueAt(filaModelo, 0);
+ 
+		for (Alumno a : listaAlumnos) {
+			if (a.getIdAlumno() == id) {
+				txtId.setText(String.valueOf(a.getIdAlumno()));
+				txtNombre.setText(a.getNombre());
+				txtApellidos.setText(a.getApellidos());
+				txtTelefono.setText(a.getTelefono() == null ? "" : a.getTelefono());
+				txtCorreo.setText(a.getCorreo());
+				txtDireccion.setText(a.getDireccion() == null ? "" : a.getDireccion());
+				txtFecha.setText(a.getFechaNacimiento() == null ? ""
+						: a.getFechaNacimiento().format(FORMATO_FECHA));
+				cmbEstado.setSelectedItem(a.getEstado());
+				idUsuarioSeleccionado = a.getIdUsuario();
+				break;
+			}
+		}
+	}
+ 
+	private void crearAcceso() {
+		if (txtId.getText().isEmpty()) {
+			aviso("Selecciona un alumno de la tabla para crearle su acceso.");
+			return;
+		}
+
+		try {
+			Alumno alumno = servicio.buscarPorId(Integer.parseInt(txtId.getText()));
+
+			if (alumno == null) {
+				aviso("No se encontró al alumno.");
+				return;
+			}
+			if (alumno.getIdUsuario() != null) {
+				aviso("Este alumno ya tiene acceso al sistema.\nEntra con su correo: "
+						+ alumno.getCorreo());
+				return;
+			}
+			if (!"ACTIVO".equals(alumno.getEstado())) {
+				aviso("El alumno está INACTIVO. Actívalo antes de crearle acceso.");
+				return;
+			}
+
+			JPasswordField txtClave = new JPasswordField();
+			JPasswordField txtClave2 = new JPasswordField();
+			Object[] contenido = {
+					"Se creará una cuenta para " + alumno.getNombre() + " "
+							+ alumno.getApellidos() + ".\nEntrará con su correo ("
+							+ alumno.getCorreo() + ")\ny la contraseña que escribas aquí:",
+					"Contraseña:", txtClave,
+					"Confirmar contraseña:", txtClave2 };
+
+			int opcion = JOptionPane.showConfirmDialog(this, contenido,
+					"Crear acceso al sistema", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.PLAIN_MESSAGE);
+
+			if (opcion != JOptionPane.OK_OPTION) {
+				return;
+			}
+
+			String clave = new String(txtClave.getPassword());
+			String clave2 = new String(txtClave2.getPassword());
+
+			if (!clave.equals(clave2)) {
+				aviso("Las contraseñas no coinciden.");
+				return;
+			}
+
+			usuarioServicio.crearAccesoAlumno(alumno, clave);
+
+			info("Acceso creado correctamente.\n\nCorreo: " + alumno.getCorreo()
+					+ "\nEl alumno ya puede iniciar sesión.");
+			limpiar();
+			cargarTabla();
+
+		} catch (IllegalArgumentException ex) {
+			aviso(ex.getMessage());
+		} catch (SQLException ex) {
+			mostrarErrorBD("No se pudo crear el acceso.", ex);
+		}
+	}
+
+	private void limpiar() {
+		txtId.setText("");
+		txtNombre.setText("");
+		txtApellidos.setText("");
+		txtTelefono.setText("");
+		txtCorreo.setText("");
+		txtDireccion.setText("");
+		txtFecha.setText("");
+		cmbEstado.setSelectedItem("ACTIVO");
+		idUsuarioSeleccionado = null;
+		tabla.clearSelection();
+		txtNombre.requestFocusInWindow();
+	}
+ 
+	private void filtrar() {
+		String texto = txtBuscar.getText().trim();
+		if (texto.isEmpty()) {
+			sorter.setRowFilter(null);
+		} else {
+			sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(texto)));
+		}
+	}
+ 
+	private boolean esLlaveForanea(SQLException ex) {
+		return ex instanceof SQLIntegrityConstraintViolationException
+				|| ex.getErrorCode() == 1451;
+	}
+ 
+	private void aviso(String mensaje) {
+		JOptionPane.showMessageDialog(this, mensaje, "Datos inválidos",
+				JOptionPane.WARNING_MESSAGE);
+	}
+ 
+	private void info(String mensaje) {
+		JOptionPane.showMessageDialog(this, mensaje, "EduControl",
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+ 
+	private void mostrarErrorBD(String mensaje, SQLException ex) {
+		JOptionPane.showMessageDialog(this,
+				mensaje + "\n" + ex.getMessage(),
+				"Error de base de datos", JOptionPane.ERROR_MESSAGE);
+	}
+ 
+	private void agregarEtiqueta(JPanel panel, String texto, int x, int y) {
+		JLabel etiqueta = new JLabel(texto);
+		etiqueta.setFont(new Font("SansSerif", Font.BOLD, 13));
+		etiqueta.setForeground(AZUL_OSCURO);
+		etiqueta.setBounds(x, y, 300, 20);
+		panel.add(etiqueta);
+	}
+ 
+	private JTextField agregarCampo(JPanel panel, int x, int y, int ancho) {
+		JTextField campo = new JTextField();
+		estilizarCampo(campo);
+		campo.setBounds(x, y, ancho, 32);
+		panel.add(campo);
+		return campo;
+	}
+ 
+	private void estilizarCampo(JTextField campo) {
+		campo.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		campo.setForeground(AZUL_OSCURO);
+		campo.setBorder(BorderFactory.createCompoundBorder(
+				new LineBorder(BORDE, 1), new EmptyBorder(4, 8, 4, 8)));
+	}
+ 
+	private void estilizarBoton(JButton boton, Color fondo, Color texto) {
+		boton.setUI(new BasicButtonUI());
+		boton.setFont(new Font("SansSerif", Font.BOLD, 14));
+		boton.setBackground(fondo);
+		boton.setForeground(texto);
+		boton.setOpaque(true);
+		boton.setContentAreaFilled(true);
+		boton.setBorderPainted(false);
+		boton.setFocusPainted(false);
+		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+	}
+}
